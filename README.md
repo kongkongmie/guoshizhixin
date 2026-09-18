@@ -28,3 +28,5 @@
 源文件在 `src/`，版本和更新记录由 `release-notes.json` 统一管理。先运行 `node --test tests/model-link.test.mjs` 与浏览器交互验证，再执行 `node build.mjs`。构建会输出不可变版本目录、嵌入版本号和日志、计算清单校验值；已有版本内容不同会拒绝覆盖。
 
 一般先更新本地测试副本，收到测试通过及推送授权后发布；若用户明确要求直接改 Git，则按该次授权发布。提交历史可追溯，既有 release 文件必须保留。
+
+20260918.4：`GEMINI 3.7F`、`GEMINI 3.8F`、`GEMINI FLASH` 等标签统一显示为 Gemini Flash，忽略大小写。分组选择匹配各条目的原始标签，保留各自开关记忆；Flash 与 Pro 不混合。

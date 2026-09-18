@@ -1,7 +1,15 @@
 {
-  "version": "20260918.3",
-  "sha256": "fb87936f8acf73266fe98add78b0bb7a65ab758af3a21bb9a8b5d886d46a86e2",
+  "version": "20260918.4",
+  "sha256": "c8e2babb74903a7494c6591dd646fdde20e6381e4b5442f76af615144f77e7a3",
   "history": [
+    {
+      "version": "20260918.4",
+      "date": "2026-09-18",
+      "changes": [
+        "Gemini 3.7F、3.8F、FLASH 等写法统一归入 Gemini Flash，不区分大小写，菜单不再重复。",
+        "手动选择和连接联动使用同一分组规则，保留条目原始标签与开关记忆，Flash 与 Pro 分离。"
+      ]
+    },
     {
       "version": "20260918.3",
       "date": "2026-09-18",

@@ -40,7 +40,7 @@
     const NAV_ITEMS = [
         ['overview', '⌂', '首页'], ['qr', '⌘', 'QR'], ['entries', '≡', '条目'], ['settings', '⚙', '设置'],
     ];
-    const SCRIPT_VERSION = __SCRIPT_VERSION__;
+    const SCRIPT_VERSION = "20260918.4";
     const SUBTITLE = `脚本 v${SCRIPT_VERSION} · 果实 V6+`;
     // 输出区里「正文」那一组：改正文长什么样的。其余都算非正文。
     // 每张卡一条胶带色；别的皮肤用不到这个变量，不影响
@@ -805,7 +805,55 @@
         const selectors = { openai: '#model_openai_select', claude: '#model_claude_select', google: '#model_google_select', makersuite: '#model_google_select', openrouter: '#model_openrouter_select', custom: '#custom_model' };
         return String(jq(selectors[source] || '', doc).val() || source || '');
     }
-__MODEL_LINK__
+    const modelLinkKey = 'fruit-heart-model-link';
+    let modelLinkEnabled = readFlag(modelLinkKey, true);
+    let modelLinkSignature = '';
+    let pendingModelSignature = '';
+    let pendingModelSince = 0;
+    let modelLinkDestroyed = false;
+
+    function linkedModelTag(model, preset) {
+        const name = String(model).toUpperCase();
+        const tags = allModelTags(preset);
+        if (/DEEPSEEK|(?:^|\/)DS[-_]/.test(name)) return tags.includes('DS') ? 'DS' : '';
+        if (/CLAUDE/.test(name)) return tags.includes('CLAUDE') ? 'CLAUDE' : '';
+        if (!/GEMINI/.test(name)) return '';
+        const group = modelGroup(name.slice(name.indexOf('GEMINI')));
+        if (['GEMINI FLASH', 'GEMINI PRO'].includes(group) && tags.some(tag => modelGroup(tag) === group)) return group;
+        return tags.includes('GEMINI') ? 'GEMINI' : '';
+    }
+
+    async function syncConnectedModel() {
+        if (modelLinkDestroyed || !modelLinkEnabled || busy) return;
+        const name = loadedName();
+        const model = detectModelText();
+        if (!name || !model) return;
+        const signature = JSON.stringify([name, model]);
+        if (signature === modelLinkSignature) return;
+        if (signature !== pendingModelSignature) {
+            pendingModelSignature = signature;
+            pendingModelSince = Date.now();
+            return;
+        }
+        // 自定义模型输入和连接方案切换可能连发事件，等实际设置稳定后再切一次。
+        if (Date.now() - pendingModelSince < 500) return;
+        try {
+            const preset = activePreset();
+            if (!configPrompt(preset)) { modelLinkSignature = signature; return; }
+            const tag = linkedModelTag(model, preset);
+            if (!tag || modelGroup(readConfig(preset).activeTag) === tag) { modelLinkSignature = signature; return; }
+            modelLinkSignature = signature;
+            await guarded(async () => {
+                if (modelLinkDestroyed || !modelLinkEnabled || loadedName() !== name || detectModelText() !== model) return;
+                await applyTag(tag);
+                if (root.hasClass('open')) render(currentView);
+            });
+        } catch (error) {
+            modelLinkSignature = signature;
+            console.warn('[果实之心] 模型联动未执行', error);
+        }
+    }
+
 
     function captureTagState(preset, config, tag) {
         if (!tag) return;
@@ -1372,7 +1420,58 @@ __MODEL_LINK__
         list.addEventListener('pointercancel', finish);
     }
 
-__UPDATES__
+    const RELEASE_BASE = 'https://raw.githubusercontent.com/kongkongmie/guoshizhixin/main/';
+    const RELEASE_NOTES = [{"version":"20260918.4","date":"2026-09-18","changes":["Gemini 3.7F、3.8F、FLASH 等写法统一归入 Gemini Flash，不区分大小写，菜单不再重复。","手动选择和连接联动使用同一分组规则，保留条目原始标签与开关记忆，Flash 与 Pro 分离。"]},{"version":"20260918.3","date":"2026-09-18","changes":["新增连接模型与预设模型组联动，默认开启，可在设置关闭。","新增脚本更新页，可查看更新记录、检查并下载新版。","未知模型或不明确的分组保持原状；连接不变时保留手动选择。"]},{"version":"20260918.2","date":"2026-09-18","changes":["显示脚本版本；统一 Git 加载与本地测试副本。","修复分区同步重复提示、白天文字阴影和自定义字数。","移除底部关闭项，非全屏点击面板外关闭。"]}];
+    let availableRelease = null;
+    let updateMessage = '';
+    let updateBusy = false;
+    function isNewerRelease(version) {
+        const [day, revision] = version.split('.').map(Number);
+        const [currentDay, currentRevision] = SCRIPT_VERSION.split('.').map(Number);
+        return day > currentDay || (day === currentDay && revision > currentRevision);
+    }
+    function renderUpdates() {
+        const notes = availableRelease?.history || RELEASE_NOTES;
+        main.html(`${titleBlock('脚本更新', `当前运行 v${SCRIPT_VERSION}`)}
+          <div class="fh-card-actions"><button class="fh-btn" data-nav="settings">返回设置</button>
+          <button class="fh-btn primary" data-action="check-update" ${updateBusy ? 'disabled' : ''}>检查更新</button>
+          ${availableRelease && isNewerRelease(availableRelease.version) ? `<button class="fh-btn" data-action="download-update" ${updateBusy ? 'disabled' : ''}>下载 v${h(availableRelease.version)}</button>` : ''}</div>
+          <p class="fh-pad" role="status">${h(updateMessage || '更新下载完成后，下次刷新生效。使用本地测试版时，需切回 Git 版才能运行下载的版本。')}</p>
+          ${notes.map(note => `<section class="fh-card fh-mt"><div class="fh-card-head"><h3>v${h(note.version)}</h3><p>${h(note.date || '')}</p></div><ul>${note.changes.map(change => `<li>${h(change)}</li>`).join('')}</ul></section>`).join('')}`);
+    }
+    async function checkScriptUpdate(download = false) {
+        if (updateBusy) return;
+        updateBusy = true;
+        updateMessage = download ? '正在下载更新…' : '正在检查更新…';
+        renderUpdates();
+        try {
+            const response = await fetch(RELEASE_BASE + 'release.json', { cache: 'no-store', signal: AbortSignal.timeout(15000) });
+            if (!response.ok) throw new Error(`检查更新失败（${response.status}）`);
+            const release = await response.json();
+            if (!/^\d{8}\.\d+$/.test(release.version) || !/^[a-f0-9]{64}$/.test(release.sha256)) throw new Error('发布信息格式不正确');
+            if (release.history !== undefined && (!Array.isArray(release.history) || !release.history.every(note => note && typeof note.version === 'string' && Array.isArray(note.changes) && note.changes.every(change => typeof change === 'string')))) throw new Error('更新记录格式不正确');
+            availableRelease = release;
+            if (!download) {
+                updateMessage = isNewerRelease(release.version) ? `发现新版 v${release.version}，可下载后刷新。` : '当前已是最新版本。';
+            } else {
+                if (!isNewerRelease(release.version)) { updateMessage = '当前已是最新版本。'; return; }
+                const responseCode = await fetch(RELEASE_BASE + `releases/${release.version}/fruit-heart.js`, { signal: AbortSignal.timeout(20000) });
+                if (!responseCode.ok) throw new Error(`下载失败（${responseCode.status}）`);
+                const code = await responseCode.text();
+                const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(code));
+                const sha256 = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+                if (sha256 !== release.sha256) throw new Error('校验失败，未保存下载内容');
+                localStorage.setItem('fruit-heart-released-script-v1', JSON.stringify({ version: release.version, sha256, code }));
+                updateMessage = `v${release.version} 已下载。刷新页面后，Git 版将运行新版。`;
+            }
+        } catch (error) {
+            updateMessage = `${error.message || '更新失败'}。当前脚本仍可继续使用。`;
+        } finally {
+            updateBusy = false;
+            if (currentView === 'updates') renderUpdates();
+        }
+    }
+
 
     function renderSettings() {
         const preset = activePreset();
