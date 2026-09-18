@@ -36,8 +36,7 @@
                 const responseCode = await fetch(RELEASE_BASE + `releases/${release.version}/fruit-heart.js`, { signal: AbortSignal.timeout(20000) });
                 if (!responseCode.ok) throw new Error(`下载失败（${responseCode.status}）`);
                 const code = await responseCode.text();
-                const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(code));
-                const sha256 = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+                const sha256 = hashScript(code);
                 if (sha256 !== release.sha256) throw new Error('校验失败，未保存下载内容');
                 localStorage.setItem('fruit-heart-released-script-v1', JSON.stringify({ version: release.version, sha256, code }));
                 updateMessage = `v${release.version} 已下载。刷新页面后，Git 版将运行新版。`;
