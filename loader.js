@@ -551,8 +551,13 @@
         return hashScript(entry.code) === entry.sha256;
     }
     function save(entry) {
-        try { localStorage.setItem(CACHE, JSON.stringify(entry)); }
-        catch (error) { console.warn('[果实之心] 浏览器未能保存脚本缓存', error); }
+        try {
+            localStorage.removeItem(CACHE);
+            localStorage.setItem(CACHE, JSON.stringify(entry));
+        } catch (error) {
+            try { localStorage.removeItem(CACHE); } catch {}
+            console.warn('[果实之心] 浏览器未能保存脚本缓存', error);
+        }
     }
     async function run(entry) {
         stage = '执行面板脚本';

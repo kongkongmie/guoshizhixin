@@ -1,5 +1,6 @@
     const RELEASE_BASE = 'https://raw.githubusercontent.com/kongkongmie/guoshizhixin/main/';
     const RELEASE_NOTES = __RELEASE_NOTES__;
+    const SCRIPT_CACHE_KEY = 'fruit-heart-released-script-v1';
     let availableRelease = null;
     let updateMessage = '';
     let updateBusy = false;
@@ -32,6 +33,17 @@
         if (/失败|错误|未保存|校验|quota|storage|setitem/i.test(updateMessage)) return 'error';
         return updateMessage ? 'done' : 'idle';
     }
+    function saveReleasedScript(entry) {
+        const serialized = JSON.stringify(entry);
+        try {
+            // 先释放旧版本占用的空间，避免替换大字符串时临时超出 localStorage 配额。
+            localStorage.removeItem(SCRIPT_CACHE_KEY);
+            localStorage.setItem(SCRIPT_CACHE_KEY, serialized);
+        } catch (error) {
+            try { localStorage.removeItem(SCRIPT_CACHE_KEY); } catch {}
+            throw new Error('浏览器缓存空间不足，更新没有保存。请清理酒馆站点缓存后重试。');
+        }
+    }
     function renderUpdates() {
         const notes = availableRelease?.history || RELEASE_NOTES;
         main.html(`${titleBlock('脚本更新', `当前运行 v${SCRIPT_VERSION}`)}
@@ -63,14 +75,12 @@
                 const code = await responseCode.text();
                 const sha256 = hashScript(code);
                 if (sha256 !== release.sha256) throw new Error('校验失败，未保存下载内容');
-                localStorage.setItem('fruit-heart-released-script-v1', JSON.stringify({ version: release.version, sha256, code }));
+                saveReleasedScript({ version: release.version, sha256, code });
                 updateMessage = `v${release.version} 已下载。请刷新酒馆页面，Git 版才会运行新版。`;
             }
         } catch (error) {
             const detail = String(error?.message || '');
-            updateMessage = /quota|storage|setitem/i.test(detail)
-                ? '浏览器缓存空间不足，更新没有保存。请清理酒馆站点缓存后重试。'
-                : `${detail || '更新失败'}。当前脚本仍可继续使用。`;
+            updateMessage = `${detail || '更新失败'}。当前脚本仍可继续使用。`;
         } finally {
             updateBusy = false;
             syncUpdateBadge();
