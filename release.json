@@ -1,7 +1,14 @@
 {
-  "version": "20260919.6",
-  "sha256": "ce3d87f657034cc65acfe17e3bf7abc09aab33a614b5a1b71fe4a4cbad242400",
+  "version": "20260919.7",
+  "sha256": "2b2860d2bf63345ddfa5736f6915d30915111ac91f6e084ba3fb5743c252fd35",
   "history": [
+    {
+      "version": "20260919.7",
+      "date": "2026-09-19",
+      "changes": [
+        "修复快捷栏兜底入口使用原生 button 导致灰底、灰字的问题，改为与酒馆 Quick Reply 一致的 div.qr--button。"
+      ]
+    },
     {
       "version": "20260919.6",
       "date": "2026-09-19",

@@ -1,5 +1,12 @@
 [
   {
+    "version": "20260919.7",
+    "date": "2026-09-19",
+    "changes": [
+      "修复快捷栏兜底入口使用原生 button 导致灰底、灰字的问题，改为与酒馆 Quick Reply 一致的 div.qr--button。"
+    ]
+  },
+  {
     "version": "20260919.6",
     "date": "2026-09-19",
     "changes": [
