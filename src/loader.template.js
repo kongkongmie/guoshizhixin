@@ -4,6 +4,7 @@ __HASH__
     let stage = '读取脚本缓存';
     const BASE = 'https://raw.githubusercontent.com/kongkongmie/guoshizhixin/main/';
     const CACHE = 'fruit-heart-released-script-v1';
+    const LOADER_VERSION = __LOADER_VERSION__;
     async function download() {
         stage = '连接 GitHub 发布信息';
         const response = await fetch(BASE + 'release.json', { cache: 'no-store', signal: AbortSignal.timeout(15000) });
@@ -41,7 +42,8 @@ __HASH__
     try {
         let cached;
         try { cached = JSON.parse(localStorage.getItem(CACHE) || 'null'); } catch {}
-        if (await valid(cached)) {
+        const cachedValid = await valid(cached);
+        if (cachedValid && cached.version === LOADER_VERSION) {
             await run(cached);
             // 已缓存的版本立即运行，更新留到下一次脚本重载，避免打断正在编辑的面板。
             void download().then(next => {
@@ -51,9 +53,16 @@ __HASH__
                 }
             }).catch(error => console.warn('[果实之心] 本次未能检查更新', error));
         } else {
-            const entry = await download();
-            await run(entry);
-            save(entry);
+            try {
+                const entry = await download();
+                await run(entry);
+                save(entry);
+            } catch (error) {
+                if (!cachedValid) throw error;
+                console.warn('[果实之心] 新版下载失败，改用已校验的离线缓存', error);
+                stage = '执行离线缓存';
+                await run(cached);
+            }
         }
     } catch (error) {
         console.error('[果实之心] 脚本加载失败', error);

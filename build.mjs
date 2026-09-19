@@ -26,7 +26,9 @@ fs.mkdirSync(path.dirname(output), { recursive: true });
 fs.writeFileSync(output, script);
 const sha256 = crypto.createHash('sha256').update(script).digest('hex');
 fs.writeFileSync(path.join(root, 'release.json'), JSON.stringify({ version, sha256, history }, null, 2) + '\n');
-const loader = read('src/loader.template.js').replace('__HASH__', () => hashCode);
+const loader = read('src/loader.template.js')
+    .replace('__HASH__', () => hashCode)
+    .replace('__LOADER_VERSION__', JSON.stringify(version));
 fs.writeFileSync(path.join(root, 'loader.js'), loader);
 fs.mkdirSync(path.join(root, 'install'), { recursive: true });
 fs.writeFileSync(path.join(root, 'install', '20260918丨果实之心丨Git加载修复.json'), JSON.stringify({
