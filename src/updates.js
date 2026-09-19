@@ -27,14 +27,20 @@
             if (!destroyed) void checkScriptUpdate();
         }, 1200);
     }
+    function updateStatusClass() {
+        if (updateBusy) return 'busy';
+        if (/失败|错误|未保存|校验|quota|storage|setitem/i.test(updateMessage)) return 'error';
+        return updateMessage ? 'done' : 'idle';
+    }
     function renderUpdates() {
         const notes = availableRelease?.history || RELEASE_NOTES;
         main.html(`${titleBlock('脚本更新', `当前运行 v${SCRIPT_VERSION}`)}
-          <div class="fh-card-actions"><button class="fh-btn" data-nav="settings">返回设置</button>
+          <div class="fh-card fh-update-actions"><div class="fh-card-actions"><button class="fh-btn" data-nav="settings">返回设置</button>
           <button class="fh-btn primary" data-action="check-update" ${updateBusy ? 'disabled' : ''}>检查更新</button>
-          ${availableRelease && isNewerRelease(availableRelease.version) ? `<button class="fh-btn" data-action="download-update" ${updateBusy ? 'disabled' : ''}>下载 v${h(availableRelease.version)}</button>` : ''}</div>
-          <p class="fh-pad" role="status">${h(updateMessage || '更新下载完成后，下次刷新生效。使用本地测试版时，需切回 Git 版才能运行下载的版本。')}</p>
-          ${notes.map(note => `<section class="fh-card fh-mt"><div class="fh-card-head"><h3>v${h(note.version)}</h3><p>${h(note.date || '')}</p></div><ul>${note.changes.map(change => `<li>${h(change)}</li>`).join('')}</ul></section>`).join('')}`);
+          ${availableRelease && isNewerRelease(availableRelease.version) ? `<button class="fh-btn" data-action="download-update" ${updateBusy ? 'disabled' : ''}>下载 v${h(availableRelease.version)}</button>` : ''}</div></div>
+          <div class="fh-update-status ${updateStatusClass()}" role="status">${h(updateMessage || '检查到新版后，下载按钮会出现在这里。')}</div>
+          <p class="fh-update-tip">下载完成后请刷新酒馆页面，Git 版才会运行新版；使用本地测试版时，请切回 Git 版。</p>
+          <div class="fh-update-history">${notes.map(note => `<article class="fh-update-entry"><div class="fh-update-entry-head"><strong>v${h(note.version)}</strong><time>${h(note.date || '')}</time></div><ul>${note.changes.map(change => `<li>${h(change)}</li>`).join('')}</ul></article>`).join('')}</div>`);
     }
     async function checkScriptUpdate(download = false) {
         if (updateBusy) return;
@@ -58,10 +64,13 @@
                 const sha256 = hashScript(code);
                 if (sha256 !== release.sha256) throw new Error('校验失败，未保存下载内容');
                 localStorage.setItem('fruit-heart-released-script-v1', JSON.stringify({ version: release.version, sha256, code }));
-                updateMessage = `v${release.version} 已下载。刷新页面后，Git 版将运行新版。`;
+                updateMessage = `v${release.version} 已下载。请刷新酒馆页面，Git 版才会运行新版。`;
             }
         } catch (error) {
-            updateMessage = `${error.message || '更新失败'}。当前脚本仍可继续使用。`;
+            const detail = String(error?.message || '');
+            updateMessage = /quota|storage|setitem/i.test(detail)
+                ? '浏览器缓存空间不足，更新没有保存。请清理酒馆站点缓存后重试。'
+                : `${detail || '更新失败'}。当前脚本仍可继续使用。`;
         } finally {
             updateBusy = false;
             syncUpdateBadge();
