@@ -1,7 +1,15 @@
 {
-  "version": "20260918.5",
-  "sha256": "2a44b65c1e251baa3ed0c878d98d1300f31bcb51b16bce80cdb5c870c1803743",
+  "version": "20260919.6",
+  "sha256": "ce3d87f657034cc65acfe17e3bf7abc09aab33a614b5a1b71fe4a4cbad242400",
   "history": [
+    {
+      "version": "20260919.6",
+      "date": "2026-09-19",
+      "changes": [
+        "思维链默认结束标签扩展为五个：</ECoT>、</thinking>、</think>、<!-- End of The ECoT -->、<!-- End the ECoT -->。",
+        "补上脚本卸载时的界面清理、浮球开关即时隐藏和快捷栏入口兜底修复。"
+      ]
+    },
     {
       "version": "20260918.5",
       "date": "2026-09-18",
