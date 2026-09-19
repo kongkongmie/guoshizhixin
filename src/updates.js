@@ -3,10 +3,29 @@
     let availableRelease = null;
     let updateMessage = '';
     let updateBusy = false;
+    let updateCheckTimer = null;
     function isNewerRelease(version) {
         const [day, revision] = version.split('.').map(Number);
         const [currentDay, currentRevision] = SCRIPT_VERSION.split('.').map(Number);
         return day > currentDay || (day === currentDay && revision > currentRevision);
+    }
+    function syncUpdateBadge() {
+        const badge = root.find('.fh-update-badge')[0];
+        if (!badge) return;
+        const newer = Boolean(availableRelease && isNewerRelease(availableRelease.version));
+        badge.hidden = !newer;
+        if (newer) {
+            badge.textContent = '🍎';
+            badge.title = `发现果实之心更新 v${availableRelease.version}`;
+            badge.setAttribute('aria-label', `发现果实之心更新 v${availableRelease.version}`);
+        }
+    }
+    function scheduleUpdateCheck() {
+        clearTimeout(updateCheckTimer);
+        updateCheckTimer = setTimeout(() => {
+            updateCheckTimer = null;
+            if (!destroyed) void checkScriptUpdate();
+        }, 1200);
     }
     function renderUpdates() {
         const notes = availableRelease?.history || RELEASE_NOTES;
@@ -21,7 +40,7 @@
         if (updateBusy) return;
         updateBusy = true;
         updateMessage = download ? '正在下载更新…' : '正在检查更新…';
-        renderUpdates();
+        if (currentView === 'updates') renderUpdates();
         try {
             const response = await fetch(RELEASE_BASE + 'release.json', { cache: 'no-store', signal: AbortSignal.timeout(15000) });
             if (!response.ok) throw new Error(`检查更新失败（${response.status}）`);
@@ -45,6 +64,7 @@
             updateMessage = `${error.message || '更新失败'}。当前脚本仍可继续使用。`;
         } finally {
             updateBusy = false;
+            syncUpdateBadge();
             if (currentView === 'updates') renderUpdates();
         }
     }
