@@ -1,0 +1,360 @@
+/* ═════════ 果实之心 · 暖纸 ═════════
+   日间＝纸，夜间＝墨：同一张纸在灯下和在夜里，不是「浅色再配一套深色」。
+   结构纪律：分隔线内缩、三级灰、一个强调色、控件各司其职。
+   质感：暖投影、一层纸纹、14px 圆角、砖红。 */
+#fruit-heart-v6 {
+  --paper:#f3efe6; --card:#fffdf8; --card2:#faf6ec; --fill:#2428220a; --fill2:#24282214;
+  --ink:#242822; --ink2:#6f7268; --ink3:#a39d8f; --line:#e3ddce;
+  --acc:#9c5346; --acc-soft:#9c534617; --acc-line:#9c534640;
+  --knob:#fffdf8; --track:#cfc8b6;
+  --shadow:0 1px 2px #4a3e2a12,0 7px 18px #4a3e2a0d;
+  --grain:repeating-linear-gradient(0deg,#24282209 0 1px,transparent 1px 3px);
+  --r:14px; --r2:10px; color-scheme:light;
+  display:none; position:fixed; inset:0; z-index:10020; padding:18px;
+  background:#1a1613cc; align-items:center; justify-content:center; color:var(--ink);
+  font:13.5px/1.6 -apple-system,"PingFang SC","Microsoft YaHei UI","Segoe UI",sans-serif; -webkit-font-smoothing:antialiased;
+}
+#fruit-heart-v6[data-theme=night] {
+  --paper:#171512; --card:#211e1a; --card2:#2a2622; --fill:#fbf7ee0d; --fill2:#fbf7ee17;
+  --ink:#f1ece1; --ink2:#a9a293; --ink3:#77705f; --line:#39342c;
+  --acc:#e2917f; --acc-soft:#e2917f1f; --acc-line:#e2917f4d;
+  --knob:#fbf7ee; --track:#4a443a;
+  --shadow:0 2px 4px #00000038,0 10px 26px #00000042;
+  --grain:repeating-linear-gradient(0deg,#fbf7ee06 0 1px,transparent 1px 3px); color-scheme:dark;
+}
+#fruit-heart-v6.open { display:flex }
+/* hidden 属性要真的藏住 —— 表单里的 input 有自己的 display，光靠浏览器默认样式压不住 */
+#fruit-heart-v6 [hidden] { display:none!important }
+#fruit-heart-v6 * { box-sizing:border-box }
+/* 作用域重置：酒馆自己给 h2/h3/small/b/code 这些标签定了颜色和字体，
+   我们只写 #fruit-heart-v6 h3{font-size} 是拦不住的 —— 元素上有酒馆的 color 声明时，
+   继承根本轮不上，标题就变成主题色（她那边是一片橙）。这里把它们统统夺回来。
+   放在最前面，后面各自的 color 还能照常覆盖。 */
+/* 字体走变量：皮肤给默认值，用户在设置里选的会以内联 --font 覆盖掉（内联永远赢）。
+   还留 !important 是因为酒馆主题会直接给 h3/p/small 指定字体。 */
+#fruit-heart-v6 { --on-acc:var(--card); --font-sans:-apple-system,"PingFang SC","Microsoft YaHei UI","Segoe UI",sans-serif; --font:var(--font-sans) }
+#fruit-heart-v6,#fruit-heart-v6 * { font-family:var(--font)!important }
+/* 只夺回酒馆真会去上色的那些标签，别拿 * 全量刷 —— 全量刷每次重算样式都要多跑一遍。 */
+#fruit-heart-v6 :is(h1,h2,h3,h4,h5,h6,p,a,b,strong,em,i,small,code,pre,label,li,option,summary) {
+  color:inherit; text-shadow:none; text-transform:none; letter-spacing:normal; font-style:normal; text-decoration:none }
+#fruit-heart-v6 :is(ul,ol) { list-style:none; margin:0; padding:0 }
+#fruit-heart-v6 :is(h1,h2,h3,h4,h5,h6) { font-weight:650 }
+#fruit-heart-v6 :is(button,input,select,textarea) { font:inherit; color:inherit }
+#fruit-heart-v6 button { cursor:pointer; border:0; background:none; padding:0 }
+#fruit-heart-v6 :is(button,input,select,textarea):focus-visible { outline:2px solid var(--acc); outline-offset:2px }
+#fruit-heart-v6 .fh-shell { width:min(430px,100%); height:min(880px,80dvh); display:grid; grid-template-rows:auto minmax(0,1fr) auto;
+  background:var(--paper); background-image:var(--grain); border-radius:16px; overflow:hidden; box-shadow:0 22px 66px #00000073 }
+
+/* 头 */
+#fruit-heart-v6 .fh-header { display:flex; align-items:flex-start; gap:11px; padding:16px 18px 11px }
+#fruit-heart-v6 .fh-brand-mark { width:27px; height:27px; margin-top:2px; flex:none; color:var(--acc) }
+#fruit-heart-v6 .fh-brand-mark svg { width:100%; height:100%; display:block; fill:currentColor; stroke:none }
+#fruit-heart-v6 .fh-brand { min-width:0 }
+#fruit-heart-v6 .fh-brand>div { display:flex; flex-wrap:wrap; align-items:baseline; gap:6px }
+#fruit-heart-v6 .fh-brand strong { font-size:21px; font-weight:680; letter-spacing:.02em; line-height:1.2 }
+#fruit-heart-v6 .fh-brand em { font-style:normal; font-size:11px; color:var(--ink3) }
+#fruit-heart-v6 .fh-brand small { display:block; font-size:11px; color:var(--ink3); margin-top:2px; letter-spacing:.02em }
+#fruit-heart-v6 .fh-header-meta { margin-left:auto; display:flex; align-items:center; flex:none; gap:7px }
+#fruit-heart-v6 .fh-update-badge { position:relative; width:25px; height:25px; padding:0; border:1px solid var(--acc-line); border-radius:50%; background:var(--acc-soft); color:var(--acc); font-size:13px; line-height:1; cursor:pointer; transition:transform .18s, background .18s, color .18s; flex:none }
+#fruit-heart-v6 .fh-update-badge:hover { transform:translateY(-1px) scale(1.05); background:var(--acc); color:var(--on-acc) }
+#fruit-heart-v6 .fh-update-badge::after { content:''; position:absolute; top:1px; right:1px; width:5px; height:5px; border-radius:50%; background:var(--acc); box-shadow:0 0 0 2px var(--card) }
+#fruit-heart-v6 .fh-update-badge[hidden] { display:none!important }
+#fruit-heart-v6 :is(.fh-close,.fh-theme) { width:29px; height:29px; border-radius:50%; background:var(--fill); color:var(--ink2); font-size:13px; flex:none }
+#fruit-heart-v6 .fh-close { width:44px; height:44px; font-size:22px; color:var(--ink) }
+#fruit-heart-v6 :is(.fh-close,.fh-theme):hover { color:var(--acc) }
+#fruit-heart-v6 .fh-main { overflow:auto; padding:2px 15px 26px; scrollbar-color:var(--line) transparent; scrollbar-width:thin; scrollbar-gutter:stable }
+#fruit-heart-v6 .fh-main::-webkit-scrollbar { width:10px; height:10px }
+#fruit-heart-v6 .fh-main::-webkit-scrollbar-thumb { background:var(--line); border-radius:8px; border:3px solid transparent; background-clip:content-box }
+
+/* 页头 / 小节标题 */
+#fruit-heart-v6 .fh-page-head { margin:0 0 10px }
+#fruit-heart-v6 .fh-update-actions { margin-bottom:8px }
+#fruit-heart-v6 .fh-update-actions .fh-card-actions { padding:10px 12px 11px }
+#fruit-heart-v6 .fh-update-status { margin:0 0 8px; padding:10px 13px; border:1px solid var(--line); border-radius:var(--r); background:var(--card2); color:var(--ink2); font-size:11.5px; line-height:1.6; overflow-wrap:anywhere; word-break:break-word; white-space:normal }
+#fruit-heart-v6 .fh-update-status.busy { color:var(--acc); border-color:var(--acc-line) }
+#fruit-heart-v6 .fh-update-status.done { color:var(--acc); border-color:var(--acc-line); background:var(--acc-soft) }
+#fruit-heart-v6 .fh-update-status.error { color:var(--acc); border-color:var(--acc-line); background:var(--acc-soft) }
+#fruit-heart-v6 .fh-update-tip { margin:0 4px 10px; padding:0 9px; color:var(--ink3); overflow-wrap:anywhere; word-break:break-word }
+#fruit-heart-v6 .fh-update-history { display:flex; flex-direction:column; gap:8px }
+#fruit-heart-v6 .fh-update-entry { background:var(--card); border-radius:var(--r); box-shadow:var(--shadow); overflow:hidden; border:0 }
+#fruit-heart-v6 .fh-update-entry-head { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:11px 14px 6px }
+#fruit-heart-v6 .fh-update-entry-head strong { color:var(--ink); font-size:14px; font-weight:650; letter-spacing:.02em }
+#fruit-heart-v6 .fh-update-entry-head time { color:var(--ink3); font-size:10.5px; white-space:nowrap }
+#fruit-heart-v6 .fh-update-entry ul { margin:0; padding:0 14px 12px 28px; color:var(--ink2); font-size:11.5px; line-height:1.65; overflow-wrap:anywhere; word-break:break-word }
+#fruit-heart-v6 .fh-update-entry li { padding:2px 0 }
+#fruit-heart-v6 h2 { font:680 21px/1.25 inherit; letter-spacing:.02em; margin:0 0 3px }
+#fruit-heart-v6 h3 { font-size:13.5px; font-weight:650; margin:0 }
+#fruit-heart-v6 p { margin:0; font-size:11px; color:var(--ink3); line-height:1.7 }
+#fruit-heart-v6 .fh-dim { font-size:11px; color:var(--ink3) }
+#fruit-heart-v6 .fh-lab { margin:20px 0 7px 13px; font-size:10.5px; font-weight:600; letter-spacing:.16em; color:var(--ink3) }
+#fruit-heart-v6 .fh-mt { margin-top:10px }
+
+/* 分组卡 */
+/* content-visibility：屏幕外的卡片不参与布局。首页现在有八张卡四十多个胶囊，
+   不这么做的话每次切回首页都要给全部内容算一遍版，手机上就是三百多毫秒。 */
+#fruit-heart-v6 :is(.fh-grp,.fh-card,.fh-qr-card,.fh-sec) { background:var(--card); border-radius:var(--r); box-shadow:var(--shadow);
+  overflow:hidden; margin-bottom:8px; break-inside:avoid; border:0;
+}
+#fruit-heart-v6 .fh-card.danger { box-shadow:var(--shadow),inset 0 0 0 1px var(--acc-line) }
+#fruit-heart-v6 .fh-card-head { padding:12px 14px 2px }
+#fruit-heart-v6 .fh-card-head p { margin-top:3px }
+#fruit-heart-v6 .fh-card-actions,#fruit-heart-v6 .fh-pad { padding:11px 14px 13px; position:relative;
+  display:flex; flex-wrap:wrap; gap:6px; align-items:center }
+#fruit-heart-v6 .fh-card>.fh-v,#fruit-heart-v6 .fh-card>textarea { margin:0 14px 11px; width:calc(100% - 28px) }
+
+/* 行：左名右值，分隔线从内容起点开始 */
+#fruit-heart-v6 .fh-row { display:flex; align-items:center; gap:10px; min-height:44px; padding:8px 14px; position:relative }
+#fruit-heart-v6 :is(.fh-row,.fh-pad,.fh-ch)+:is(.fh-row,.fh-pad):before {
+  content:""; position:absolute; left:14px; right:0; top:0; height:1px; background:var(--line) }
+#fruit-heart-v6 .fh-k { flex:none; font-size:13.5px; color:var(--ink) }
+#fruit-heart-v6 .fh-v { margin-left:auto; display:flex; flex-wrap:wrap; align-items:center; gap:6px; justify-content:flex-end; min-width:0 }
+#fruit-heart-v6 .fh-row.act .fh-k { color:var(--acc); font-weight:500 }
+#fruit-heart-v6 .fh-chev { color:var(--ink3); font-size:15px }
+
+/* 两栏格：标签在上、控件在下。横着摆一行只能塞一个「字数」那么宽的东西，
+   竖着摆之后半格也有 180px，一屏能多看四行。缝隙就是分隔线，不额外画。 */
+#fruit-heart-v6 .fh-grid { display:grid; grid-template-columns:1fr 1fr }
+/* 分隔线用边框画，不用 1px 缝 —— 玻璃皮肤的卡片是半透的，缝里的底色会透上来染整格 */
+#fruit-heart-v6 .fh-cell { padding:9px 13px 11px; display:flex; flex-direction:column;
+  gap:6px; min-height:63px; justify-content:flex-start; min-width:0; border-top:1px solid var(--line) }
+#fruit-heart-v6 .fh-cell:nth-child(-n+2) { border-top:0 }
+#fruit-heart-v6 .fh-cell:nth-child(odd):not(.wide) { border-right:1px solid var(--line) }
+#fruit-heart-v6 .fh-cell.wide { grid-column:1/-1 }
+#fruit-heart-v6 .fh-ck { font-size:11px; color:var(--ink2); letter-spacing:.02em; display:flex; align-items:baseline; gap:6px }
+#fruit-heart-v6 .fh-ck em { font-style:normal; font-size:10.5px; color:var(--ink3) }
+#fruit-heart-v6 .fh-cv { display:flex; align-items:center; gap:7px; flex-wrap:wrap; min-width:0 }
+#fruit-heart-v6 .fh-cv .fh-sw { margin-left:0 }
+#fruit-heart-v6 .fh-cv .fh-seg button { padding:4px 10px }
+#fruit-heart-v6 .fh-hint { font-size:10.5px; color:var(--ink3); line-height:1.5 }
+#fruit-heart-v6 .fh-ch { display:flex; align-items:center; gap:9px; min-height:46px; padding:9px 14px; position:relative }
+#fruit-heart-v6 .fh-ch b { font-size:13.5px; font-weight:650; letter-spacing:.02em }
+#fruit-heart-v6 .fh-dot { display:none; width:7px; height:7px; border-radius:50%; background:var(--dot,var(--acc)); flex:none }
+#fruit-heart-v6 .fh-ch .fh-n { margin-left:auto; color:var(--ink3); font-size:12px }
+#fruit-heart-v6 .fh-more.fh-n { padding:2px 0 2px 6px }
+#fruit-heart-v6 .fh-more.fh-n:hover { color:var(--acc) }
+#fruit-heart-v6 .fh-ch .fh-n+.fh-dim { margin-left:0 }
+#fruit-heart-v6 .fh-tile { width:29px; height:29px; border-radius:8px; background:var(--acc); color:var(--on-acc);
+  display:grid; place-items:center; font-size:14px; flex:none }
+
+/* 开关 */
+#fruit-heart-v6 .fh-sw { width:43px; height:25px; border-radius:25px; background:var(--track); position:relative; flex:none;
+  margin-left:auto; transition:background .2s }
+#fruit-heart-v6 .fh-sw:after { content:""; position:absolute; top:2px; left:2px; width:21px; height:21px; border-radius:50%;
+  background:var(--knob); box-shadow:0 1px 3px #00000033; transition:left .2s }
+#fruit-heart-v6 .fh-sw.on { background:var(--acc) }
+#fruit-heart-v6 .fh-sw.on:after { left:20px }
+
+/* 分段控件 */
+#fruit-heart-v6 .fh-seg { display:inline-flex; background:var(--fill2); border-radius:9px; padding:2px; gap:2px }
+#fruit-heart-v6 .fh-seg button { padding:4px 12px; border-radius:7px; font-size:12.5px; white-space:nowrap; color:var(--ink) }
+#fruit-heart-v6 .fh-seg button.on { background:var(--card); box-shadow:0 1px 3px #4a3e2a29; font-weight:650; color:var(--acc) }
+#fruit-heart-v6[data-theme=night] .fh-seg button.on { background:var(--card2); box-shadow:0 1px 3px #0000005c }
+
+/* 下拉：一颗按钮 + 自家的选择面板。
+   要一眼看出「这是能点开的」—— 所以给描边和一个实心 ▾，别做成纯文字。 */
+#fruit-heart-v6 .fh-sel { display:inline-flex; align-items:center; gap:5px; background:var(--card2);
+  border:1px solid var(--line); border-radius:7px; padding:4.5px 8px 4.5px 10px; font-size:12.5px; color:var(--ink);
+  max-width:12em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; line-height:1.35 }
+#fruit-heart-v6 .fh-sel i { font-style:normal; font-size:8px; color:var(--ink3); flex:none; transform:translateY(1px) }
+#fruit-heart-v6 .fh-sel.on { color:var(--acc); border-color:var(--acc-line); background:var(--acc-soft); font-weight:600 }
+#fruit-heart-v6 .fh-sel.on i { color:var(--acc) }
+#fruit-heart-v6 .fh-sel:hover { border-color:var(--ink3) }
+#fruit-heart-v6 .fh-sel.wide { max-width:15em }
+/* 选择面板：一小块，不是占半屏的大抽屉 */
+#fruit-heart-v6 .fh-sheet { position:absolute; inset:0; z-index:20; display:flex; align-items:center; justify-content:center; padding:16px }
+#fruit-heart-v6 .fh-sheet-bg { position:absolute; inset:0; background:#1a161366 }
+#fruit-heart-v6 .fh-sheet-box { position:relative; display:flex; flex-direction:column; width:min(268px,88%);
+  max-height:min(62%,420px); background:var(--card); border-radius:12px; box-shadow:0 12px 40px #00000059; overflow:hidden }
+#fruit-heart-v6 .fh-sheet-head { padding:9px 13px 8px; font-size:10.5px; font-weight:650; color:var(--ink3);
+  letter-spacing:.14em; border-bottom:1px solid var(--line); flex:none }
+#fruit-heart-v6 .fh-sheet-list { overflow:auto; -webkit-overflow-scrolling:touch }
+#fruit-heart-v6 .fh-sheet-item { display:grid; grid-template-columns:1fr auto; align-items:center; column-gap:8px;
+  width:100%; min-height:38px; padding:8px 13px; text-align:left; position:relative; font-size:12.5px }
+#fruit-heart-v6 .fh-sheet-item+.fh-sheet-item:before { content:""; position:absolute; left:13px; right:0; top:0; height:1px; background:var(--line) }
+#fruit-heart-v6 .fh-sheet-item span { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+/* 备注单独占第二行，整行给它 —— 之前挤在名字右边，九个字就开始吃省略号 */
+#fruit-heart-v6 .fh-sheet-item em { grid-column:1/-1; font-style:normal; font-size:10.5px; color:var(--ink3);
+  line-height:1.5; margin-top:2px; font-weight:400 }
+#fruit-heart-v6 .fh-sheet-item i { font-style:normal; color:transparent; font-size:12px; font-weight:800;
+  grid-column:2; grid-row:1 }
+#fruit-heart-v6 .fh-sheet-item.on { color:var(--acc); font-weight:600; background:var(--acc-soft) }
+#fruit-heart-v6 .fh-sheet-item.on i { color:var(--acc) }
+#fruit-heart-v6 .fh-sheet-item:hover { background:var(--fill) }
+#fruit-heart-v6 .fh-sheet-cancel { flex:none; padding:9px; font-size:12.5px; color:var(--ink2);
+  border-top:1px solid var(--line); background:var(--card2) }
+#fruit-heart-v6 .fh-sheet-cancel:hover { color:var(--acc) }
+/* 多选：无边框填充胶囊 + 勾 */
+#fruit-heart-v6 .fh-chips { display:flex; flex-wrap:wrap; gap:6px; width:100% }
+#fruit-heart-v6 .fh-chip { font-size:12.5px; border-radius:20px; padding:5.5px 12px; background:var(--fill); color:var(--ink2);
+  display:inline-flex; align-items:center; gap:5px; white-space:nowrap }
+#fruit-heart-v6 .fh-chip.on { background:var(--acc-soft); color:var(--acc); font-weight:600 }
+#fruit-heart-v6 .fh-chip.on:before { content:"✓"; font-size:10.5px; font-weight:700 }
+#fruit-heart-v6 .fh-more { color:var(--ink2); font-size:12px; padding:5.5px 4px }
+#fruit-heart-v6 .fh-more:hover { color:var(--acc) }
+
+/* 按钮：动作用，描边 */
+#fruit-heart-v6 .fh-btn { border:1px solid var(--line); background:var(--card2); border-radius:9px; padding:6px 13px;
+  font-size:12.5px; white-space:nowrap; transition:.13s }
+#fruit-heart-v6 .fh-btn:hover { border-color:var(--ink3) }
+#fruit-heart-v6 .fh-btn.on { border-color:var(--acc); color:var(--acc); background:var(--acc-soft); font-weight:600 }
+#fruit-heart-v6 .fh-btn.primary,#fruit-heart-v6 .fh-btn.solid { border-color:var(--acc); background:var(--acc); color:var(--on-acc); font-weight:600 }
+#fruit-heart-v6 .fh-btn.primary:hover,#fruit-heart-v6 .fh-btn.solid:hover { filter:brightness(1.08) }
+#fruit-heart-v6 .fh-btn.solid { padding:8px 15px; font-size:13px; border-radius:10px }
+#fruit-heart-v6 .fh-btn.danger { color:var(--acc); border-color:var(--acc-line) }
+#fruit-heart-v6 .fh-btn.add,#fruit-heart-v6 .fh-btn.mine { border-style:dashed }
+#fruit-heart-v6 .fh-btn.add { color:var(--acc); border-color:var(--acc-line) }
+#fruit-heart-v6 .fh-btn[disabled] { opacity:.42; cursor:default }
+#fruit-heart-v6 .fh-x { color:var(--ink3); font-size:13px; padding:0 3px; line-height:1 }
+#fruit-heart-v6 .fh-x:hover { color:var(--acc) }
+#fruit-heart-v6 .fh-tag,#fruit-heart-v6 .fh-g { font-size:10px; font-style:normal; color:var(--ink3);
+  border:1px solid var(--line); border-radius:5px; padding:1px 6px; white-space:nowrap }
+#fruit-heart-v6 .fh-tag.quiet { color:var(--ink3) }
+#fruit-heart-v6 .fh-tag:not(.quiet) { color:var(--acc); border-color:var(--acc-line) }
+
+/* 输入 */
+#fruit-heart-v6 :is(input[type=text],textarea) { width:100%; border:1px solid var(--line); background:var(--card2);
+  border-radius:9px; padding:8px 11px; font-size:12.5px }
+#fruit-heart-v6 textarea { min-height:74px; resize:vertical; line-height:1.6; font-family:ui-monospace,Consolas,monospace }
+#fruit-heart-v6 .fh-toolbar { display:flex; align-items:center; gap:8px; margin-bottom:10px }
+#fruit-heart-v6 .fh-search { flex:1; min-width:0 }
+#fruit-heart-v6 .fh-check { display:inline-flex; align-items:center; gap:5px; font-size:11.5px; color:var(--ink2); white-space:nowrap }
+#fruit-heart-v6 .fh-foot { font-size:10.5px; color:var(--ink3); margin:16px 0 0 13px }
+#fruit-heart-v6 .fh-empty { padding:26px 0; text-align:center; font-size:12px; color:var(--ink3) }
+#fruit-heart-v6 code { font-family:ui-monospace,Consolas,monospace!important; font-size:11px; background:var(--fill);
+  border-radius:4px; padding:0 4px }
+
+/* QR 入口 */
+#fruit-heart-v6 .fh-qr-entry { display:flex; align-items:center; gap:11px; width:100%; padding:11px 14px; text-align:left }
+#fruit-heart-v6 .fh-qr-ico { width:31px; height:31px; border-radius:8px; background:var(--acc); color:var(--on-acc);
+  display:grid; place-items:center; font-size:15px; flex:none }
+#fruit-heart-v6 .fh-qr-copy strong { display:block; font-size:13.5px; font-weight:650 }
+#fruit-heart-v6 .fh-qr-copy small { font-size:11px; color:var(--ink3) }
+#fruit-heart-v6 .fh-qr-go { margin-left:auto; color:var(--ink3); font-size:15px }
+#fruit-heart-v6 .fh-qr-tags { display:none }
+#fruit-heart-v6 .fh-qr-head { display:flex; align-items:center; gap:8px; padding:11px 14px 0 }
+#fruit-heart-v6 .fh-qr-head strong { font-size:13.5px; font-weight:650 }
+#fruit-heart-v6 .fh-qr-card>p { padding:2px 14px 0 }
+#fruit-heart-v6 .fh-qr-acts { display:flex; flex-wrap:wrap; gap:6px; padding:10px 14px 13px }
+#fruit-heart-v6 .fh-qr-acts .fh-btn { font-size:12px; padding:5px 11px }
+#fruit-heart-v6 .fh-qr-acts.dense .fh-btn { font-size:11.5px; padding:4px 9px }
+#fruit-heart-v6 .fh-qr-form { margin:0 14px 13px; padding-top:11px; border-top:1px solid var(--line);
+  display:flex; flex-wrap:wrap; gap:7px }
+#fruit-heart-v6 .fh-qr-form .fh-dim { width:100%; line-height:1.6 }
+
+/* 条目页：分区折叠 + 右侧打勾 */
+
+#fruit-heart-v6 .fh-sec-head { display:flex; align-items:center; gap:9px; width:100%; padding:11px 14px; text-align:left }
+/* 排序模式 */
+#fruit-heart-v6 .fh-sortlist { display:flex; flex-direction:column; gap:7px; touch-action:none; width:100% }
+#fruit-heart-v6 .fh-sortrow { display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--card);
+  border-radius:var(--r2); box-shadow:var(--shadow); cursor:grab; user-select:none }
+#fruit-heart-v6 .fh-sortrow b { font-weight:600; font-size:13px; flex:1 }
+#fruit-heart-v6 .fh-sortrow span { font-size:11.5px; color:var(--ink3) }
+#fruit-heart-v6 .fh-grip { font-style:normal; color:var(--ink3); font-size:15px; letter-spacing:-2px }
+#fruit-heart-v6 .fh-sortrow.moving { cursor:grabbing; outline:1.5px solid var(--acc-line) }
+#fruit-heart-v6 .fh-sec-head b { font-size:13.5px; font-weight:600; flex:1; min-width:0 }
+#fruit-heart-v6 .fh-sec-head span { color:var(--ink3); font-size:11.5px }
+#fruit-heart-v6 .fh-sec-head i { color:var(--ink3); font-size:13px; font-style:normal }
+#fruit-heart-v6 .fh-items { display:block }
+#fruit-heart-v6 .fh-item { display:flex; align-items:center; gap:8px; min-height:38px; padding:6px 14px; position:relative; cursor:pointer }
+#fruit-heart-v6 .fh-item+.fh-item:before,#fruit-heart-v6 .fh-sec-head+.fh-items .fh-item:first-child:before {
+  content:""; position:absolute; left:14px; right:0; top:0; height:1px; background:var(--line) }
+#fruit-heart-v6 .fh-item-name { font-size:13px; color:var(--ink2); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+#fruit-heart-v6 .fh-item.on .fh-item-name { color:var(--ink); font-weight:500 }
+#fruit-heart-v6 .fh-item-meta { display:flex; gap:4px; flex:none }
+#fruit-heart-v6 .fh-item .fh-sw { display:none }
+/* 开没开要一眼看出来：关＝空方框，开＝实心方框带勾。
+   「什么都不显示 vs 一个勾」区分度太低，一屏全是勾的时候尤其看不出来。 */
+#fruit-heart-v6 .fh-tick { width:18px; height:18px; border-radius:5px; border:1.5px solid var(--line);
+  display:grid; place-items:center; font-size:11px; font-weight:800; color:transparent; flex:none; background:var(--paper) }
+#fruit-heart-v6 .fh-item.on .fh-tick { color:var(--on-acc); background:var(--acc); border-color:var(--acc) }
+#fruit-heart-v6 .fh-item.on { background:var(--acc-soft) }
+#fruit-heart-v6 .fh-hidden-check { position:absolute; opacity:0; pointer-events:none }
+
+#fruit-heart-v6 .fh-more.on { color:var(--acc); font-weight:600 }
+#fruit-heart-v6 .fh-toggle { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 14px;
+  position:relative; font-size:13.5px; cursor:pointer }
+#fruit-heart-v6 .fh-toggle+.fh-toggle:before { content:""; position:absolute; left:14px; right:0; top:0; height:1px; background:var(--line) }
+
+/* 标签栏 */
+#fruit-heart-v6 .fh-bottom-nav { display:grid; grid-template-columns:repeat(4,1fr); background:var(--card); border-top:1px solid var(--line) }
+#fruit-heart-v6 .fh-nav-item { padding:8px 0 9px; text-align:center; font-size:10px; color:var(--ink3) }
+#fruit-heart-v6 .fh-nav-item.on { color:var(--acc) }
+#fruit-heart-v6 .fh-nav-item b { display:block; font-size:16px; font-weight:400; margin-bottom:1px; line-height:1.15 }
+#fruit-heart-v6 .fh-nav-item span { display:block }
+#fruit-heart-v6.fh-busy { pointer-events:none; opacity:.75 }
+
+/* 悬浮球 */
+/* 悬浮球：不画圆环不铺底色，就一只猫浮在那儿。
+   靠 drop-shadow 描一圈暗边，深浅背景上都看得见。 */
+/* dock：▲ / 猫 / ▼ 竖排。拖拽和记忆位置都挂在 dock 上，三个一起动。 */
+/* --dock 是整只猫的倍数，设置里改；下面所有尺寸都乘它，点击区跟着一起变 */
+#fruit-heart-v6-dock { --dock:1.25; position:fixed; right:18px; bottom:96px; z-index:10010;
+  display:flex; flex-direction:column; align-items:center; gap:1px; cursor:grab; touch-action:none }
+#fruit-heart-v6-dock.dragging { cursor:grabbing }
+#fruit-heart-v6 .fh-toggle span small { display:block; margin-top:2px; font-size:11px; opacity:.62; font-weight:400; line-height:1.35 }
+#fruit-heart-v6-dock .fh-jump { display:none; align-items:center; justify-content:center;
+  padding:0; border:0; background:none; cursor:pointer;
+  color:#cf6355; opacity:.62; transition:opacity .18s, transform .1s;
+  filter:drop-shadow(0 1px 1.5px #00000047) }
+#fruit-heart-v6-dock.has-jump .fh-jump { display:flex }
+#fruit-heart-v6-dock .fh-jump svg { display:block; fill:currentColor; stroke:none }
+/* 尾巴：图标自己上方留白多，靠负 margin-bottom 压低贴近头顶；
+   点击区（34×26）比图形大一圈，不然太细点不中 */
+#fruit-heart-v6-dock .fh-jump.up { width:calc(34px * var(--dock)); height:calc(26px * var(--dock)); margin-bottom:calc(-6px * var(--dock)) }
+#fruit-heart-v6-dock .fh-jump.up svg { width:calc(26px * var(--dock)); height:calc(26px * var(--dock)) }
+/* 身子：小小的一截，约头宽的 1/3，负 margin 顶到下巴底下。
+   点击区（30×16）比图形大一圈 —— 图形小不等于难点 */
+#fruit-heart-v6-dock .fh-jump.down { width:calc(30px * var(--dock)); height:calc(16px * var(--dock)); margin-top:calc(-7px * var(--dock)) }
+#fruit-heart-v6-dock .fh-jump.down svg { width:calc(14px * var(--dock)); height:calc(11px * var(--dock)) }
+#fruit-heart-v6-dock .fh-jump:hover { opacity:1 }
+/* 按下去往各自的方向缩一下：尾巴往上翘，身子往下坐 */
+#fruit-heart-v6-dock .fh-jump.up:active { opacity:1; transform:translateY(-2px) scale(.92); transition:none }
+#fruit-heart-v6-dock .fh-jump.down:active { opacity:1; transform:translateY(2px) scale(.94); transition:none }
+@media (prefers-color-scheme:dark) { #fruit-heart-v6-dock .fh-jump { color:#ff9e90; filter:drop-shadow(0 1px 3px #000000a6) } }
+
+#fruit-heart-v6-fallback { position:relative; width:calc(38px * var(--dock)); height:calc(35px * var(--dock));
+  display:flex; align-items:center; justify-content:center; padding:0; cursor:grab; touch-action:none;
+  border:0; background:none; color:#cf6355; opacity:.7; transition:opacity .18s, transform .12s;
+  filter:drop-shadow(0 1px 1.5px #00000047) }
+#fruit-heart-v6-fallback svg { width:calc(32px * var(--dock)); height:calc(32px * var(--dock)); display:block; fill:currentColor; stroke:none }
+#fruit-heart-v6-fallback:hover { opacity:1 }
+#fruit-heart-v6-fallback:active,#fruit-heart-v6-fallback.dragging { opacity:1; cursor:grabbing; transform:scale(1.1); transition:none }
+@media (prefers-color-scheme:dark) { #fruit-heart-v6-fallback { color:#ff9e90; filter:drop-shadow(0 1px 3px #000000a6) } }
+
+/* 中间地带（桌面小窗 560-900）：还是一列，但把内容收进 500px 居中，
+   不然「字数 …… 短长自定义」中间空出一大片，就是她说的电脑上丑。 */
+@media (min-width:561px) {
+  #fruit-heart-v6 .fh-main>* { max-width:520px; margin-left:auto; margin-right:auto }
+  #fruit-heart-v6 .fh-header,#fruit-heart-v6 .fh-bottom-nav { padding-left:max(18px,calc(50% - 260px)); padding-right:max(18px,calc(50% - 260px)) }
+}
+/* 宽屏：侧边栏 + 两列 */
+@media (min-width:900px) and (hover:hover) {
+  #fruit-heart-v6 .fh-main>* { max-width:none; margin-left:0; margin-right:0 }
+  #fruit-heart-v6 .fh-header { padding-left:22px; padding-right:22px }
+  #fruit-heart-v6 .fh-shell { width:min(950px,100%); height:min(810px,80dvh);
+    grid-template-rows:auto minmax(0,1fr); grid-template-columns:180px 1fr;
+    grid-template-areas:"nav head" "nav main" }
+  #fruit-heart-v6 .fh-header { grid-area:head; padding:18px 22px 8px }
+  #fruit-heart-v6 .fh-main { grid-area:main; padding:2px 22px 24px; columns:initial; overflow-y:scroll; overflow-x:hidden; scrollbar-width:thin; scrollbar-gutter:stable }
+  #fruit-heart-v6 .fh-main>* { break-inside:avoid }
+  #fruit-heart-v6 .fh-bottom-nav { grid-area:nav; display:flex; flex-direction:column; border-top:0;
+    border-right:1px solid var(--line); padding:17px 10px; gap:1px; background:transparent }
+  #fruit-heart-v6 .fh-nav-item { display:flex; align-items:center; gap:11px; padding:8px 12px; border-radius:9px;
+    text-align:left; font-size:13px; color:var(--ink2) }
+  #fruit-heart-v6 .fh-nav-item.on { background:var(--acc-soft); color:var(--acc); font-weight:600 }
+  #fruit-heart-v6 .fh-nav-item b { display:inline; font-size:15px; margin:0; width:18px; text-align:center }
+}
+
+/* 手机安全模式：大模糊阴影是重绘杀手，玻璃温室为它踩过一次坑。
+   8 张卡各挂一层 18px 模糊，回首页要多花两百多毫秒。手机上换成一条发丝线，
+   顺带也更像原生 —— iOS 的分组列表本来就没有阴影。 */
+@media (max-width:560px),(hover:none) and (pointer:coarse) {
+  #fruit-heart-v6 { padding:12px; background:#1a1613cc }
+  #fruit-heart-v6 .fh-shell { width:100%; height:80dvh; border-radius:16px; box-shadow:none }
+  #fruit-heart-v6 * { transition:none!important }
+  #fruit-heart-v6 { --shadow:none }
+  #fruit-heart-v6 :is(.fh-grp,.fh-card,.fh-qr-card,.fh-sec,.fh-sortrow) { box-shadow:inset 0 0 0 1px var(--line); contain:content }
+  #fruit-heart-v6 .fh-card.danger { box-shadow:inset 0 0 0 1px var(--acc-line) }
+}
+

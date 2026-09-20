@@ -1,0 +1,21 @@
+#fruit-heart-v6 .fh-nsfw-fields { display:grid; gap:16px; }
+#fruit-heart-v6 .fh-nsfw-enable { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:40px; font-weight:600; color:var(--ink); }
+#fruit-heart-v6 .fh-nsfw-auto input[type=checkbox],
+#fruit-heart-v6 .fh-nsfw-auto input[type=radio] { appearance:auto; width:18px; height:18px; margin:0; accent-color:var(--acc); flex:none; }
+#fruit-heart-v6 .fh-nsfw-target { color:var(--ink2); margin:0; overflow-wrap:anywhere; }
+#fruit-heart-v6 .fh-nsfw-field { display:grid; gap:8px; min-width:0; }
+#fruit-heart-v6 .fh-nsfw-field>label { font-weight:600; color:var(--ink); }
+#fruit-heart-v6 .fh-nsfw-field .fh-btn { justify-self:start; }
+#fruit-heart-v6 .fh-nsfw-auto textarea { box-sizing:border-box; width:100%; min-height:112px; line-height:1.7; padding:12px; color:var(--ink)!important; background:var(--card2)!important; border:1px solid var(--line); border-radius:var(--r2); resize:vertical; }
+#fruit-heart-v6 .fh-nsfw-cooldown { padding:0; margin:0; min-width:0; border:0; }
+#fruit-heart-v6 .fh-nsfw-cooldown legend { padding:0; margin-bottom:8px; font-weight:600; color:var(--ink); }
+#fruit-heart-v6 .fh-nsfw-options { display:flex; gap:8px; flex-wrap:wrap; }
+#fruit-heart-v6 .fh-nsfw-option { display:flex; gap:8px; align-items:center; justify-content:center; min-height:44px; min-width:92px; padding:0 14px; box-sizing:border-box; cursor:pointer; color:var(--ink)!important; background:var(--card2)!important; border:1px solid var(--line); border-radius:var(--r2); }
+#fruit-heart-v6 .fh-nsfw-option:has(input:checked) { border-color:var(--acc); background:var(--acc-soft)!important; font-weight:600; }
+#fruit-heart-v6 .fh-nsfw-option:focus-within { outline:2px solid var(--acc); outline-offset:2px; }
+#fruit-heart-v6 .fh-nsfw-auto .fh-dim { color:var(--ink2); font-size:12px; margin:4px 0; line-height:1.6; }
+#fruit-heart-v6 .fh-nsfw-details { font-size:12px; color:var(--ink2); line-height:1.7; }
+#fruit-heart-v6 .fh-nsfw-details summary { cursor:pointer; min-height:28px; color:var(--ink); }
+#fruit-heart-v6 .fh-nsfw-status { color:var(--ink2); font-size:12px; line-height:1.6; overflow-wrap:anywhere; }
+#fruit-heart-v6 .fh-nsfw-auto .fh-card-actions { align-items:center; gap:10px; flex-wrap:wrap; }
+#fruit-heart-v6 summary:focus-visible { outline:2px solid var(--acc); outline-offset:2px; }

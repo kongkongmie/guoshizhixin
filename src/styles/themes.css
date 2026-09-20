@@ -1,0 +1,166 @@
+/* ═════════ 皮肤：果园手账 ═════════
+   照第二轮那张草图复刻。上一版我自作主张改成了方格本＋红色装订线，
+   跑偏了 —— 草图要的是「贴在点阵格纸上的一沓纸片」：
+   每张卡左上角一条和纸胶带，每张卡的胶带颜色不一样（由 JS 按卡片主题给 --tape）；
+   按钮是白底细描边不是实心红；勾是描边方框里一个红钩；
+   QR 卡下面横一条颜文字花边。 */
+#fruit-heart-v6[data-skin=journal] {
+  --paper:#f6f2e7; --card:#fffdf6; --card2:#f7f2e5; --fill:#3a373010; --fill2:#3a37301a;
+  --ink:#3a3730; --ink2:#8d877a; --ink3:#a49d8b; --line:#ded7c4;
+  --acc:#c25a4e; --acc-soft:#f7e8e2; --acc-line:#c25a4e;
+  --knob:#fffdf6; --track:#cfc7b2; --tape:#d9cdb4; --dot:#8a7350;
+  --shadow:2px 3px 0 #dcd4bf; --r:4px; --r2:4px;
+  --grain:radial-gradient(#8d877a2b 1.15px,transparent 1.15px);
+}
+#fruit-heart-v6[data-skin=journal][data-theme=night] {
+  --paper:#221f1a; --card:#2c2922; --card2:#343027; --fill:#f6f0e00f; --fill2:#f6f0e01c;
+  --ink:#f0e9d9; --ink2:#a9a290; --ink3:#7a7361; --line:#413b31;
+  --acc:#e8968a; --acc-soft:#e8968a1c; --acc-line:#e8968a59;
+  --knob:#f6f0e0; --track:#4d4638; --tape:#5a6f60; --dot:#c9b78e;
+  --shadow:2px 3px 0 #16140f;
+  --grain:radial-gradient(#f6f0e01c 1.15px,transparent 1.15px);
+}
+/* 手账不再默认楷体：系统楷体的屏显字重太飘，她说「丑巴巴」。想要楷就去设置里挑霞鹜文楷。 */
+#fruit-heart-v6[data-skin=journal] { --font:var(--font-sans) }
+#fruit-heart-v6[data-skin=journal] .fh-shell { background-size:15px 15px }
+/* 卡＝贴上去的纸片：左上角一条胶带，颜色由 --tape 决定（JS 一卡一色） */
+#fruit-heart-v6[data-skin=journal] :is(.fh-grp,.fh-card,.fh-qr-card,.fh-sec) {
+  border:1px solid var(--line); margin-bottom:15px; margin-top:7px; overflow:visible; position:relative }
+#fruit-heart-v6[data-skin=journal] :is(.fh-grp,.fh-card,.fh-qr-card,.fh-sec):before {
+  content:""; position:absolute; top:-8px; left:20px; width:58px; height:16px; z-index:1; border-radius:1px;
+  transform:rotate(-1.6deg); opacity:.85;
+  background:repeating-linear-gradient(46deg,var(--tape) 0 4px,color-mix(in srgb,var(--tape) 45%,#fff) 4px 9px) }
+#fruit-heart-v6[data-skin=journal][data-theme=night] :is(.fh-grp,.fh-card,.fh-qr-card,.fh-sec):before {
+  background:repeating-linear-gradient(46deg,var(--tape) 0 4px,color-mix(in srgb,var(--tape) 55%,#000) 4px 9px) }
+#fruit-heart-v6[data-skin=journal] .fh-grp:first-child { margin-top:9px }
+/* 页头 */
+#fruit-heart-v6[data-skin=journal] .fh-header { border-bottom:1px dashed var(--line) }
+#fruit-heart-v6[data-skin=journal] .fh-brand strong { letter-spacing:.1em }
+#fruit-heart-v6[data-skin=journal] :is(.fh-close,.fh-theme) { border:1px dashed var(--line); background:none }
+#fruit-heart-v6[data-skin=journal] .fh-bottom-nav { border-top:1px dashed var(--line) }
+#fruit-heart-v6[data-skin=journal] .fh-lab { letter-spacing:.26em; color:var(--ink); font-size:12px; font-weight:700; margin-left:6px }
+/* 分隔线改虚线 */
+#fruit-heart-v6[data-skin=journal] :is(.fh-row,.fh-pad,.fh-ch)+:is(.fh-row,.fh-pad):before,
+#fruit-heart-v6[data-skin=journal] .fh-item+.fh-item:before,
+#fruit-heart-v6[data-skin=journal] .fh-sec-head+.fh-items .fh-item:first-child:before,
+#fruit-heart-v6[data-skin=journal] .fh-toggle+.fh-toggle:before,
+#fruit-heart-v6[data-skin=journal] .fh-sheet-item+.fh-sheet-item:before {
+  background:none; border-top:1px dashed var(--line); height:0 }
+#fruit-heart-v6[data-skin=journal] .fh-qr-form { border-top:1px dashed var(--line) }
+#fruit-heart-v6[data-skin=journal] .fh-foot { border-top:1px dashed var(--line); padding-top:12px }
+/* 勾＝描边方框里一个红钩，不填色块 */
+#fruit-heart-v6[data-skin=journal] .fh-chip { background:none; padding-left:3px; color:var(--ink2) }
+#fruit-heart-v6[data-skin=journal] .fh-chip:before {
+  content:""; width:14px; height:14px; border:1.4px solid #c3bba4; border-radius:3px; background:var(--card);
+  display:inline-block; flex:none }
+#fruit-heart-v6[data-skin=journal][data-theme=night] .fh-chip:before { border-color:#5c5545; background:var(--card2) }
+#fruit-heart-v6[data-skin=journal] .fh-chip.on { background:none; color:var(--ink); font-weight:600 }
+#fruit-heart-v6[data-skin=journal] .fh-chip.on:before {
+  content:"✓"; color:var(--acc); border-color:var(--acc); background:none; font-size:12px; font-weight:900;
+  line-height:12px; text-align:center }
+#fruit-heart-v6[data-skin=journal] .fh-tick { border-radius:3px; border-width:1.4px; background:var(--card) }
+#fruit-heart-v6[data-skin=journal] .fh-item.on .fh-tick { background:none; color:var(--acc); border-color:var(--acc); font-size:13px }
+#fruit-heart-v6[data-skin=journal] .fh-item.on { background:none }
+#fruit-heart-v6[data-skin=journal] .fh-item.on .fh-item-name { color:var(--ink) }
+/* 按钮：白底细描边 + 淡影，不是实心红 */
+#fruit-heart-v6[data-skin=journal] .fh-btn { border-radius:7px; background:var(--card) }
+#fruit-heart-v6[data-skin=journal] :is(.fh-btn.primary,.fh-btn.solid) {
+  background:var(--card); color:var(--acc); border-color:var(--acc-line); font-weight:700;
+  box-shadow:0 1px 2px #4a3e2a14 }
+#fruit-heart-v6[data-skin=journal] :is(.fh-btn.primary,.fh-btn.solid):hover { background:var(--acc-soft); filter:none }
+/* 字数那排：草图里是三颗独立胶囊，不是分段控件 */
+#fruit-heart-v6[data-skin=journal] .fh-seg { background:none; border:0; padding:0; gap:6px }
+#fruit-heart-v6[data-skin=journal] .fh-seg button { border:1px solid var(--line); background:var(--card); border-radius:7px; padding:5px 12px }
+#fruit-heart-v6[data-skin=journal] .fh-seg button.on { border-color:var(--acc); color:var(--acc); background:var(--acc-soft); box-shadow:none }
+/* 下拉：描边胶囊，选中了就整颗变红 */
+#fruit-heart-v6[data-skin=journal] .fh-sel { border:1px solid var(--line); background:var(--card); border-radius:7px }
+#fruit-heart-v6[data-skin=journal] .fh-sel.on { border-color:var(--acc); background:var(--acc-soft) }
+#fruit-heart-v6[data-skin=journal] .fh-sw { border:1.5px solid var(--line) }
+#fruit-heart-v6[data-skin=journal] :is(input[type=text],textarea) { border:1px dashed var(--line) }
+#fruit-heart-v6[data-skin=journal] .fh-sheet-box { border:1px solid var(--line) }
+/* 右上角一枚歪着的虚线小印 */
+#fruit-heart-v6[data-skin=journal] .fh-header-meta:before {
+  content:"果実"; display:grid; place-items:center; width:30px; height:30px; flex:none; margin-right:3px;
+  border:1.5px dashed var(--acc-line); border-radius:50%; color:var(--acc); opacity:.5;
+  font-size:8.5px; letter-spacing:.04em; line-height:1.15; text-align:center; transform:rotate(-11deg) }
+/* ── 下面这些数值是拿设计图逐项量出来对齐的，别随手改 ── */
+#fruit-heart-v6[data-skin=journal] .fh-dot { display:block }
+/* 设计图里行内控件是紧跟标签左对齐的，不是甩到最右边 —— 这一条差别最大，
+   右对齐会在标签和控件之间空出一大片。开关仍然靠右。 */
+#fruit-heart-v6[data-skin=journal] .fh-row .fh-v { margin-left:0; justify-content:flex-start }
+#fruit-heart-v6[data-skin=journal] .fh-row .fh-sw { margin-left:auto }
+#fruit-heart-v6[data-skin=journal] .fh-ch b { font-size:12.5px; letter-spacing:.1em; font-weight:650 }
+#fruit-heart-v6[data-skin=journal] .fh-ch { gap:8px }
+#fruit-heart-v6[data-skin=journal] .fh-lab { font-size:13px; letter-spacing:.3em; width:fit-content;
+  border-bottom:1.5px dashed var(--line); padding-bottom:5px; margin-left:6px }
+#fruit-heart-v6[data-skin=journal] :is(.fh-grp,.fh-card,.fh-qr-card,.fh-sec):before {
+  height:15px; top:-7px; transform:rotate(-2deg); opacity:1 }
+#fruit-heart-v6[data-skin=journal] .fh-sel { font-size:12px; font-weight:700; padding:8px 12px 8px 13px;
+  border-radius:4px; background:var(--card) }
+#fruit-heart-v6[data-skin=journal] .fh-sel.on { background:#f7e8e2; border-color:var(--acc); color:var(--acc) }
+#fruit-heart-v6[data-skin=journal][data-theme=night] .fh-sel.on { background:#3b2f2a }
+#fruit-heart-v6[data-skin=journal] .fh-sel i { font-size:9px }
+#fruit-heart-v6[data-skin=journal] .fh-chip { font-size:11.5px; padding:4px 9px 4px 0; gap:5px }
+#fruit-heart-v6[data-skin=journal] .fh-chip:before { width:12px; height:12px; border-width:1.5px; border-radius:3px }
+#fruit-heart-v6[data-skin=journal] .fh-chip.on:before { color:var(--dot); border-color:var(--dot); font-size:11px; line-height:10px }
+#fruit-heart-v6[data-skin=journal] .fh-chip.on { color:var(--ink); font-weight:600 }
+#fruit-heart-v6[data-skin=journal] :is(.fh-more,.fh-more.fh-n) { font-size:11px; color:var(--ink2) }
+#fruit-heart-v6[data-skin=journal] .fh-ch .fh-n { font-size:11px; color:var(--ink3) }
+#fruit-heart-v6[data-skin=journal] .fh-fold { opacity:.45 }
+@media (max-width:560px),(hover:none) and (pointer:coarse) {
+  #fruit-heart-v6[data-skin=journal] :is(.fh-grp,.fh-card,.fh-qr-card,.fh-sec) { box-shadow:2px 3px 0 #dcd4bf }
+  #fruit-heart-v6[data-skin=journal][data-theme=night] :is(.fh-grp,.fh-card,.fh-qr-card,.fh-sec) { box-shadow:2px 3px 0 #16140f }
+}
+#fruit-heart-v6 .fh-ch[data-fold] { cursor:pointer }
+#fruit-heart-v6 .fh-fold { font-style:normal; color:var(--ink3); font-size:12px; margin-left:6px; flex:none }
+#fruit-heart-v6 .fh-ch .fh-n+.fh-fold,#fruit-heart-v6 .fh-ch .fh-sw+.fh-fold { margin-left:8px }
+
+/* ═════════ 皮肤 · 黑金玻璃 ═════════
+   玻璃的真相是三件事：底下要有东西被糊、边上要有一道亮线、下面要有影子。
+   只有 .fh-shell 和选择面板真的开 backdrop-filter（各一层），卡片用半透明叠色装，
+   手机上四十多张卡不能一人一层模糊，那是直接掉帧的做法。
+   金不用纯黄，用香槟金：纯黄在深底上会发脏。 */
+#fruit-heart-v6[data-skin=glass] {
+  --paper:#0e0d0b; --card:#ffffff0a; --card2:#ffffff12; --fill:#ffffff0d; --fill2:#ffffff17;
+  --ink:#f3eee3; --ink2:#aaa090; --ink3:#7c7466; --line:#e3c27f24;
+  --acc:#e6c689; --acc-soft:#e6c68914; --acc-line:#e6c68947;
+  --knob:#141210; --track:#ffffff1f; --on-acc:#191510;
+  --gold:linear-gradient(135deg,#f4e0b2 0%,#dcbb7d 46%,#b9975c 100%);
+  --shadow:0 1px 0 #ffffff0a inset,0 10px 30px #00000073;
+  --grain:none; --r:16px; --r2:11px; color-scheme:dark;
+}
+#fruit-heart-v6[data-skin=glass][data-theme=day] { --paper:#17140f; --card:#ffffff0e; --line:#e3c27f2e }
+#fruit-heart-v6[data-skin=glass] .fh-shell {
+  background:#14110ddb;
+  backdrop-filter:blur(22px) saturate(135%); -webkit-backdrop-filter:blur(22px) saturate(135%);
+  border:1px solid #e3c27f26; box-shadow:0 30px 80px #000000a6,0 1px 0 #ffffff14 inset }
+/* 一点点金色空气，让黑不是死黑 */
+#fruit-heart-v6[data-skin=glass] .fh-main {
+  background:radial-gradient(120% 60% at 82% -8%,#e6c6891a,transparent 60%),
+             radial-gradient(90% 45% at 0% 104%,#e6c68912,transparent 62%) }
+#fruit-heart-v6[data-skin=glass] :is(.fh-grp,.fh-card,.fh-qr-card,.fh-sec) {
+  border:1px solid #ffffff14; box-shadow:0 1px 0 #ffffff0f inset,0 6px 20px #0000005c;
+  background:linear-gradient(160deg,#ffffff12,#ffffff07 38%,#ffffff05) }
+#fruit-heart-v6[data-skin=glass] .fh-sheet-box { backdrop-filter:blur(26px) saturate(140%);
+  -webkit-backdrop-filter:blur(26px) saturate(140%); background:#1b1813e8; border:1px solid #e3c27f2e }
+#fruit-heart-v6[data-skin=glass] .fh-cell { background:transparent }
+/* 金件：开着的开关、实心按钮、QR 图标 —— 金只给「正在生效」的东西，别处一律留白 */
+#fruit-heart-v6[data-skin=glass] .fh-sw.on { background:var(--gold); box-shadow:0 0 14px #e6c68947 }
+#fruit-heart-v6[data-skin=glass] .fh-sw.on:after { background:#17140f; box-shadow:none }
+#fruit-heart-v6[data-skin=glass] :is(.fh-btn.primary,.fh-btn.solid,.fh-tile,.fh-qr-ico) {
+  background:var(--gold); border:0; font-weight:700; box-shadow:0 2px 12px #e6c68930 }
+#fruit-heart-v6[data-skin=glass] .fh-brand-mark { color:#e6c689; filter:drop-shadow(0 0 7px #e6c68959) }
+#fruit-heart-v6[data-skin=glass] .fh-brand strong { background:var(--gold); -webkit-background-clip:text;
+  background-clip:text; color:transparent }
+#fruit-heart-v6[data-skin=glass] .fh-lab { color:#c9ad78; letter-spacing:.2em }
+#fruit-heart-v6[data-skin=glass] .fh-dot { display:block; background:var(--gold); box-shadow:0 0 8px #e6c68959 }
+#fruit-heart-v6[data-skin=glass] .fh-seg { background:#ffffff0f; border:1px solid #ffffff12 }
+#fruit-heart-v6[data-skin=glass] .fh-seg button.on { background:#e6c68926; color:#f0d9a4;
+  box-shadow:0 0 0 1px #e6c68947 inset }
+#fruit-heart-v6[data-skin=glass] .fh-sel { background:#ffffff0d; border-color:#e6c6893d }
+#fruit-heart-v6[data-skin=glass] .fh-sel.on { color:#f0d9a4; border-color:#e6c68966; background:#e6c6891a }
+#fruit-heart-v6[data-skin=glass] .fh-item.on .fh-tick { background:var(--gold); border-color:transparent }
+#fruit-heart-v6[data-skin=glass] .fh-chip.on { background:#e6c6891f; box-shadow:0 0 0 1px #e6c68947 inset; color:#f0d9a4 }
+#fruit-heart-v6[data-skin=glass] .fh-bottom-nav { background:#13110ecc; border-top:1px solid #ffffff14;
+  backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px) }
+

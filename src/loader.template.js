@@ -25,11 +25,13 @@ __HASH__
         return hashScript(entry.code) === entry.sha256;
     }
     function save(entry) {
+        let previous = null;
         try {
+            previous = localStorage.getItem(CACHE);
             localStorage.removeItem(CACHE);
             localStorage.setItem(CACHE, JSON.stringify(entry));
         } catch (error) {
-            try { localStorage.removeItem(CACHE); } catch {}
+            try { localStorage.removeItem(CACHE); if (previous !== null) localStorage.setItem(CACHE, previous); } catch {}
             console.warn('[果实之心] 浏览器未能保存脚本缓存', error);
         }
     }
