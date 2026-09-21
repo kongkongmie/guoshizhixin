@@ -531,7 +531,8 @@
     let stage = '读取脚本缓存';
     const BASE = 'https://raw.githubusercontent.com/kongkongmie/guoshizhixin/main/';
     const CACHE = 'fruit-heart-released-script-v1';
-    const LOADER_VERSION = "20260919.15";
+    const SEEN = 'fruit-heart-release-seen-v1';
+    const LOADER_VERSION = "20260921.2";
     async function download() {
         stage = '连接 GitHub 发布信息';
         const response = await fetch(BASE + 'release.json', { cache: 'no-store', signal: AbortSignal.timeout(15000) });
@@ -545,18 +546,26 @@
         const entry = { version: release.version, sha256: release.sha256, code };
         stage = '校验下载文件';
         if (!await valid(entry)) throw new Error('脚本校验未通过');
+        noteSeen(release.version);
         return entry;
     }
     async function valid(entry) {
         if (!entry || typeof entry.code !== 'string' || typeof entry.sha256 !== 'string') return false;
         return hashScript(entry.code) === entry.sha256;
     }
+    // 主脚本 1.2 秒后还会自己查一次同一个 release.json。把这轮的结果记下来给它用，
+    // 每次刷新酒馆就少打一次 GitHub —— 国内网络下那是一次 15 秒的挂起。
+    function noteSeen(version) {
+        try { localStorage.setItem(SEEN, JSON.stringify({ version, at: Date.now() })); } catch {}
+    }
     function save(entry) {
+        let previous = null;
         try {
+            previous = localStorage.getItem(CACHE);
             localStorage.removeItem(CACHE);
             localStorage.setItem(CACHE, JSON.stringify(entry));
         } catch (error) {
-            try { localStorage.removeItem(CACHE); } catch {}
+            try { localStorage.removeItem(CACHE); if (previous !== null) localStorage.setItem(CACHE, previous); } catch {}
             console.warn('[果实之心] 浏览器未能保存脚本缓存', error);
         }
     }

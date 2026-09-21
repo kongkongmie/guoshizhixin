@@ -1,0 +1,29 @@
+/* 快捷回复栏里那颗按钮的猫：它在面板外面，酒馆的地盘，所以不加作用域前缀。
+   颜色写死不跟酒馆主题走 —— 那边主题五花八门，跟着走容易变成一只灰猫。 */
+.fh-bar-cat { display:inline-block; width:1.15em; height:1.15em; vertical-align:-.22em;
+  margin-right:.16em; color:#cf6355 }
+.fh-bar-cat svg { width:100%; height:100%; display:block; fill:currentColor; stroke:none }
+@media (prefers-color-scheme:dark) { .fh-bar-cat { color:#ff9e90 } }
+
+/* 大类的「菜单说明」：作者写的用法和署名，字比 title 再小一号，但必须看得见 */
+#fruit-heart-v6 .fh-qr-desc { margin-top:4px; font-size:10.5px; line-height:1.65; color:var(--ink3) }
+#fruit-heart-v6 .fh-qr-form textarea[data-card-desc] { min-height:62px; font-family:inherit; font-size:12px }
+
+/* 编辑某个按钮时顶上那句大白话：点了会发生什么 + {{输入}} 怎么用 */
+#fruit-heart-v6 .fh-qr-tip { font-size:11px; line-height:1.75; color:var(--ink2); background:var(--fill);
+  border-radius:var(--r2); padding:8px 10px; margin:0 0 2px }
+#fruit-heart-v6 .fh-qr-tip b { color:var(--acc); font-weight:650 }
+#fruit-heart-v6 .fh-qr-tip code { font-size:10.5px; padding:1px 4px; border-radius:4px; background:var(--fill2) }
+
+/* Mobile viewport containment: header/footer never scroll with the page. */
+#fruit-heart-v6 { box-sizing:border-box!important; inset:auto!important; top:var(--fh-vtop,0px)!important; left:var(--fh-vleft,0px)!important; width:var(--fh-vwidth,100vw)!important; height:var(--fh-vheight,100dvh)!important; max-width:none!important; max-height:none!important; margin:0!important; transform:none!important; overflow:hidden!important; padding:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left)); overscroll-behavior:contain; }
+#fruit-heart-v6 .fh-shell { min-height:0; max-height:100%; height:min(880px,80%); min-width:0; max-width:100%; }
+#fruit-heart-v6 .fh-main { min-height:0; min-width:0; overscroll-behavior:contain; overflow-x:hidden; }
+#fruit-heart-v6 .fh-header { min-height:0; padding:8px 10px; }
+#fruit-heart-v6 .fh-header-meta { gap:3px; }
+#fruit-heart-v6 .fh-fullscreen { min-width:40px; min-height:44px; font-size:20px; }
+#fruit-heart-v6 .fh-bottom-nav { grid-template-columns:repeat(4,minmax(0,1fr)); flex-shrink:0; }
+#fruit-heart-v6.fh-is-fullscreen .fh-shell { width:100%; height:100%; border-radius:10px; }
+
+/* 隔离酒馆美化的文字阴影，包含原生按钮及输入框。 */
+#fruit-heart-v6, #fruit-heart-v6 *, #fruit-heart-v6 *::before, #fruit-heart-v6 *::after { text-shadow:none !important; }

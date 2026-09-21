@@ -4,7 +4,7 @@ import { test } from 'node:test';
 
 const source = fs.readFileSync(new URL('../src/model-link.js', import.meta.url), 'utf8');
 const body = source.slice(source.indexOf('    function linkedModelTag'), source.indexOf('    async function syncConnectedModel'));
-const template = fs.readFileSync(new URL('../src/fruit-heart.template.js', import.meta.url), 'utf8');
+const template = fs.readFileSync(new URL('../src/core/presets.js', import.meta.url), 'utf8');
 const grouping = template.slice(template.indexOf('    function modelGroup'), template.indexOf('    // ── 分区：'));
 const { resolve, appliedTag, modelChoices, currentModel } = new Function('allModelTags', grouping + body + '\nreturn { resolve: linkedModelTag, appliedTag, modelChoices, currentModel };')(preset => preset.tags);
 const standard = ['GEMINI', 'GEMINI 3.8F', 'GEMINI 3.1PRO', 'CLAUDE', 'DS'];
