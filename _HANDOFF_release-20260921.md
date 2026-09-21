@@ -84,6 +84,12 @@ git push
 
 在 V6.2 的酒馆助手脚本里，**打开 Git 正式版，关闭本地版**。
 
+## Pake 更新缓存不足
+
+- Pake 没有浏览器的站点数据清理入口。果实之心只需删除 localStorage 键 `fruit-heart-released-script-v1`，不要清空整个 Pake 数据目录，避免连带删除登录状态和其他酒馆设置。
+- 可在开发者工具 Console 执行 `localStorage.removeItem('fruit-heart-released-script-v1'); location.reload();`；没有开发者工具时，用酒馆助手临时脚本执行同一句，运行一次后删除该临时脚本。
+- 若仍受 WebView 配额限制，可临时关闭 Git 版、开启已内嵌的 `20260921.2` 本地版。
+
 ## 下一步（还没做）
 
 - `src/ui/events.js` 里 30 多个 `if (action === …)` 分支，改成查表。
