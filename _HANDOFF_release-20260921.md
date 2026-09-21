@@ -55,7 +55,7 @@ for %t in (nsfw-auto settings-layout settings-page entry-sweep preset-settings) 
 - 正式构建 SHA-256 为 `e3ef6f1707019ed718aa81a6d5a981407568849f7e97d116d7c2eb32d8d4350a`，与本文预期逐字一致；`release.json` 声明值与产物实算值一致。
 - eslint 正好 2 条 vendor `require` 错误；`node --test tests/*.test.mjs` 为 19/19 通过；5 套 jsdom 回归全部通过。
 - 修复了两处仅影响测试的环境问题：`entry-sweep` 改用系统临时目录；NSFW 测试在内存预设副本中建立固定出厂基线，避免用户后来修改的自动化设置让测试漂移。没有写入 `H:\sillytavern\`。
-- `origin/main` 与本地均指向发布提交；按提交哈希读取远端 `release.json` 已确认版本与 SHA 正确。分支形式的 raw URL 在推送后仍短暂返回旧 CDN 缓存，需等边缘缓存刷新。
+- `origin/main` 与本地一致；按提交哈希和分支 raw URL 读取远端 `release.json`，均已确认版本与 SHA 正确（分支 URL 推送后曾短暂命中旧缓存，随后已刷新）。
 - 当前机器未安装 `gh`，因此 PR #1 尚未关闭；需在 GitHub 页面手动关闭并备注“已手工合并”。
 
 ### 3. 提交和推送
