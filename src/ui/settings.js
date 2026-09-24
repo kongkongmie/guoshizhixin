@@ -7,6 +7,8 @@
     function settingsDoc(summary, body) {
         return `<details class="fh-doc"><summary>${h(summary)}</summary><div>${body}</div></details>`;
     }
+    // 词表默认收起；用户点开过的记在这里，增删词重绘后保持展开
+    const tagFoldOpen = new Set();
     function renderSettings() {
         const preset = activePreset();
         const config = readConfig(preset);
@@ -16,14 +18,20 @@
         const hidden = new Set(config.hiddenSections || []);
         let plan; try { plan = sectionPlan(preset); } catch { plan = { total: 0, adds: [], moves: [], newHeads: [] }; }
         const homeList = homeOrder(config);
+        const ecotReady = ecotOptionsReady();
+        const ecotAutoParse = ecotAutoParseEnabled();
+        const ecotTrimLanguage = ecotTrimLanguageEnabled();
         const tagBox = (kind, label, note, placeholder) => `<div class="fh-tagbox">
             ${label || note ? `<div class="fh-row"><span class="fh-k">${h(label)}</span><span class="fh-n">${h(note)}</span></div>` : ''}
-            <div class="fh-tags">${nsfwTags(kind, draft[kind])}</div>
+            <details class="fh-doc fh-tagfold" data-tagfold="${kind}" ${tagFoldOpen.has(kind) ? 'open' : ''}><summary>已有 ${draft[kind].length} 个词，点开查看 / 删除</summary>
+              <div class="fh-tags">${nsfwTags(kind, draft[kind])}</div></details>
             <div class="fh-tagadd"><input data-nsfw-add="${kind}" type="text" placeholder="${h(placeholder)}"><button class="fh-btn" data-nsfw-addbtn="${kind}">加</button></div></div>`;
 
         const auto = `
           <section class="fh-card"><label class="fh-toggle"><span>插头模型自动跟随<small>自动识别插头选取模型，跟随切换预设对应词条。识别失败将保持预设不动。</small></span>
-            <button class="fh-sw ${modelLinkEnabled ? 'on' : ''}" data-action="toggle-model-link" role="switch" aria-label="跟随连接模型" aria-checked="${modelLinkEnabled}"></button></label></section>
+            <button class="fh-sw ${modelLinkEnabled ? 'on' : ''}" data-action="toggle-model-link" role="switch" aria-label="跟随连接模型" aria-checked="${modelLinkEnabled}"></button></label>
+            <label class="fh-toggle"><span>DeepSeek 自动关闭原生思考<small>插头连的是 DeepSeek 时，自动往「附加参数 → 包括主体参数」写入 {"thinking": {"type": "disabled"}}；换成别的模型时自动删掉。你自己写过的 thinking 不会被改。</small></span>
+            <button class="fh-sw ${dsThinkingOff ? 'on' : ''}" data-action="toggle-ds-thinking" role="switch" aria-label="DeepSeek 自动关闭原生思考" aria-checked="${dsThinkingOff}"></button></label></section>
 
           <section class="fh-card fh-mt"><div class="fh-card-head"><h3>预设NSFW模块总控</h3>
             <p>首页「自动」NSFW 的判定机制：</p></div>
@@ -61,7 +69,12 @@
 
           <section class="fh-card fh-mt"><div class="fh-card-head"><h3>思维链折叠</h3>
             <p>写上思维链的结束标签，思考内容就能折进酒馆原生的自动解析。一行一个。</p></div>
-            <textarea id="fh-ecot-end-tags" rows="4" spellcheck="false">${h(ecotEndTags().join('\n'))}</textarea>
+            <label class="fh-toggle"><span>绑定 ECoT 自动解析<small>开启时，脚本锁定酒馆推理格式为 ECoT、勾上「自动解析」，并把思维链折进推理块；关闭后不再绑定，推理模板和「自动解析」勾选都由你自己在酒馆里选。</small></span>
+              <button class="fh-sw ${ecotAutoParse ? 'on' : ''}" data-action="ecot-auto-parse-toggle" role="switch" aria-label="绑定 ECoT 自动解析" aria-checked="${ecotAutoParse}" ${ecotReady ? '' : 'disabled'}></button></label>
+            <label class="fh-toggle"><span>清除「[语言检定]」之前的内容<small>开启时，推理块里 [语言检定] 前面的内容会被删掉（打开时会顺便整理当前聊天）；关闭后保留原文，已删掉的无法恢复。</small></span>
+              <button class="fh-sw ${ecotTrimLanguage ? 'on' : ''}" data-action="ecot-trim-language-toggle" role="switch" aria-label="清除语言检定之前的内容" aria-checked="${ecotTrimLanguage}" ${ecotReady ? '' : 'disabled'}></button></label>
+            ${ecotReady ? '' : '<p class="fh-note fh-pad">当前预设里的 ECoT 脚本版本不支持这两个开关，请先更新「果实之心-ECoT自动注入与解析」脚本。</p>'}
+            <textarea id="fh-ecot-end-tags" rows="5" spellcheck="false">${h(ecotEndTags().join('\n'))}</textarea>
             <div class="fh-card-actions"><button class="fh-btn primary" data-action="ecot-save-tags">保存</button><button class="fh-btn" data-action="ecot-reset-tags">恢复默认</button>
               <button class="fh-btn" data-action="ecot-apply">重新配置酒馆解析</button><button class="fh-btn" data-action="ecot-scan">整理历史消息</button></div>
             <p class="fh-note fh-pad">${h(ecotStatus())}</p></section>`;

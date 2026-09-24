@@ -56,6 +56,21 @@ const chat = [];
 let chatId = 'chat-A';
 w.__setChatId__ = v => { chatId = v; };
 w.SillyTavern = { getContext: () => ({ chat, getCurrentChatId: () => chatId, chatCompletionSettings:{ chat_completion_source:'makersuite', google_model:'gemini-3.8-flash' } }) };
+const ecotState = { enabled: true, autoParse: true, trimLanguage: true,
+  tags: ['</ECoT>', '</thinking>', '</think>', '<!-- End of The ECoT -->', '<!-- End the ECoT -->'] };
+w.FruitHeartECoT = {
+  getEnabled: () => ecotState.enabled,
+  setEnabled: value => { ecotState.enabled = Boolean(value); },
+  getAutoParse: () => ecotState.autoParse,
+  setAutoParse: value => { ecotState.autoParse = Boolean(value); },
+  getTrimBeforeLanguageCheck: () => ecotState.trimLanguage,
+  setTrimBeforeLanguageCheck: value => { ecotState.trimLanguage = Boolean(value); },
+  getEndTags: () => [...ecotState.tags],
+  setEndTags: value => { ecotState.tags = String(value).split(/[\r\n,，]+/).filter(Boolean); },
+  resetEndTags: () => { ecotState.tags = ['</ECoT>', '</thinking>', '</think>', '<!-- End of The ECoT -->', '<!-- End the ECoT -->']; },
+  applyFormatter: async () => true,
+  rescan: async () => {},
+};
 // ── 假世界书：酒馆原始格式（comment 名字 / disable 开关 / constant 蓝灯）
 // 写接口留着，但测试要断言它【一次都没被调用】—— 新做法不碰世界书文件
 const makeLore = () => ({

@@ -2,7 +2,7 @@
     'use strict';
     const hashScript = (() => {
         const module = { exports: {} };
-        const process = undefined, window = {}, self = undefined, define = undefined;
+        const process = undefined, window = {}, self = undefined, define = undefined, require = undefined;
 /**
  * [js-sha256]{@link https://github.com/emn178/js-sha256}
  *
@@ -532,7 +532,7 @@
     const BASE = 'https://raw.githubusercontent.com/kongkongmie/guoshizhixin/main/';
     const CACHE = 'fruit-heart-released-script-v1';
     const SEEN = 'fruit-heart-release-seen-v1';
-    const LOADER_VERSION = "20260921.2";
+    const LOADER_VERSION = "20260924.1";
     async function download() {
         stage = '连接 GitHub 发布信息';
         const response = await fetch(BASE + 'release.json', { cache: 'no-store', signal: AbortSignal.timeout(15000) });

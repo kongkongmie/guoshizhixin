@@ -37,6 +37,14 @@
             renderSettings();
             return;
         }
+        if (action === 'toggle-ds-thinking') {
+            dsThinkingOff = !dsThinkingOff;
+            void saveDsThinking();
+            syncDsThinking();
+            toast('success', dsThinkingOff ? 'DeepSeek 连接时会自动关闭原生思考' : '已停止自动写入，脚本写过的参数已移除');
+            renderSettings();
+            return;
+        }
         if (action === 'update-more') { updateShowAll = true; renderUpdates(); return; }
         if (action === 'open-updates') { open(); render('updates'); return; }
         if (action === 'check-update') return checkScriptUpdate();
@@ -228,6 +236,24 @@
         if (action === 'ecot-scan') return guarded(async () => { const api = hostWindow.FruitHeartECoT || window.FruitHeartECoT; if (!api) throw new Error('ECoT 模块未就绪'); await api.rescan(); toast('success', '历史消息扫描完成'); });
         if (action === 'ecot-save-tags') return guarded(async () => { const api = hostWindow.FruitHeartECoT || window.FruitHeartECoT; if (!api) throw new Error('ECoT 模块未就绪'); api.setEndTags(root.find('#fh-ecot-end-tags').val()); toast('success', '结束标签已保存'); renderSettings(); });
         if (action === 'ecot-reset-tags') return guarded(async () => { const api = hostWindow.FruitHeartECoT || window.FruitHeartECoT; if (!api) throw new Error('ECoT 模块未就绪'); api.resetEndTags(); toast('success', '已恢复默认结束标签'); renderSettings(); });
+        if (action === 'ecot-auto-parse-toggle') return guarded(async () => {
+            const api = ecotApi();
+            if (!api || typeof api.setAutoParse !== 'function') throw new Error('当前 ECoT 脚本不支持自动解析开关');
+            const next = !ecotAutoParseEnabled();
+            // 新版 setAutoParse 自己会配置酒馆并整理当前聊天；旧版是同步函数，await 也无害
+            await api.setAutoParse(next);
+            if (next && typeof api.applyFormatter === 'function' && !api.version) await api.applyFormatter();
+            toast('success', next ? '已绑定 ECoT 自动解析' : '已解除 ECoT 绑定，推理格式可以自己切换了');
+            renderSettings();
+        });
+        if (action === 'ecot-trim-language-toggle') return guarded(async () => {
+            const api = ecotApi();
+            if (!api || typeof api.setTrimBeforeLanguageCheck !== 'function') throw new Error('当前 ECoT 脚本不支持语言检定清理开关');
+            const next = !ecotTrimLanguageEnabled();
+            await api.setTrimBeforeLanguageCheck(next);
+            toast('success', next ? '已开启语言检定前清理，当前聊天已整理' : '已关闭语言检定前清理（只影响之后的消息）');
+            renderSettings();
+        });
     });
     root.on('click', '[data-model-tag]', function () { const tag = this.dataset.modelTag; guarded(async () => { await applyTag(tag); render(currentView); }); });
     root.on('click', '[data-tag-family]', function () { selectedTagFamily = this.dataset.tagFamily; render(currentView); });
@@ -323,6 +349,11 @@
         if (!added) toast('info', '这些词已经在里面了');
     }
     root.on('click', '[data-nsfw-addbtn]', function () { nsfwAddFrom(this.dataset.nsfwAddbtn); });
+    // toggle 事件不冒泡，只能在 summary 点击后读 open 状态
+    root.on('click', '[data-tagfold] > summary', function () {
+        const fold = this.parentElement;
+        setTimeout(() => { if (fold.open) tagFoldOpen.add(fold.dataset.tagfold); else tagFoldOpen.delete(fold.dataset.tagfold); });
+    });
     root.on('keydown', '[data-nsfw-add]', function (event) {
         if (event.key !== 'Enter' || event.originalEvent?.isComposing) return;
         event.preventDefault(); nsfwAddFrom(this.dataset.nsfwAdd);

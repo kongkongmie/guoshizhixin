@@ -12,7 +12,7 @@ if (!/^\d{8}\.\d+$/.test(version)) throw Error('Invalid release version');
 // Isolated CommonJS wrapper for the vendored browser hash implementation; no globals are installed.
 const hashCode = `    const hashScript = (() => {
         const module = { exports: {} };
-        const process = undefined, window = {}, self = undefined, define = undefined;
+        const process = undefined, window = {}, self = undefined, define = undefined, require = undefined;
 ${read('vendor/js-sha256.js')}
         return module.exports.sha256;
     })();`;

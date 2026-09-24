@@ -182,6 +182,8 @@
 #fruit-heart-v6 .fh-sw[disabled]:after { box-shadow:none }
 /* 词表标签：一个词一颗，点一下删掉 */
 #fruit-heart-v6 .fh-tagbox { padding:0 14px 12px }
+#fruit-heart-v6 .fh-tagbox .fh-tagfold { margin:0 0 8px; border-top:0; padding-top:2px }
+#fruit-heart-v6 .fh-tagbox .fh-tagfold > div { padding:6px 0 0 }
 #fruit-heart-v6 .fh-tags { display:flex; flex-wrap:wrap; gap:6px; margin:2px 0 8px }
 #fruit-heart-v6 .fh-tag { display:inline-flex; align-items:center; gap:5px; padding:5px 9px; border-radius:var(--r2);
   border:1px solid var(--line); background:var(--fill); color:var(--ink); font-size:12px; line-height:1.2; cursor:pointer }

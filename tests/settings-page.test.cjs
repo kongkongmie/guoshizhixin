@@ -8,7 +8,7 @@ let fail=0; const ok=(n,c,x='')=>{console.log((c?'  ✓ ':'  ✗ ')+n+(x?'  '+x:
   $(root).find('[data-nav="settings"]')[0].click(); await sleep(30);
   const main=()=>root.querySelector('.fh-main');
   // 每个 data-action 都要能找到节点
-  const want=['toggle-model-link','nsfw-wb-toggle','nsfw-wb-green',
+  const want=['toggle-model-link','nsfw-wb-toggle','nsfw-wb-green','ecot-auto-parse-toggle','ecot-trim-language-toggle',
     'ecot-save-tags','ecot-reset-tags','ecot-apply','ecot-scan','profile-save','profile-export','profile-import','profile-delete',
     'sections-sync','sections-all','sections-none','fullscreen','clear-panel-cache','restore-params','reset-prompt-states','kill-script'];
   const missing=want.filter(a=>!main().querySelector(`[data-action="${a}"]`));
@@ -20,6 +20,12 @@ let fail=0; const ok=(n,c,x='')=>{console.log((c?'  ✓ ':'  ✗ ')+n+(x?'  '+x:
       '[data-nsfw-add="open"]','[data-nsfw-add="close"]','[data-nsfw-add="wbMark"]',
       '[data-nsfw-addbtn="open"]','[data-nsfw-addbtn="close"]','[data-nsfw-addbtn="wbMark"]'])
     ok('还在：'+sel, !!main().querySelector(sel));
+  const autoParse=main().querySelector('[data-action="ecot-auto-parse-toggle"]');
+  autoParse.click(); await sleep(20);
+  ok('自动解析开关能保存', w.FruitHeartECoT.getAutoParse()===false && !main().querySelector('[data-action="ecot-auto-parse-toggle"]').classList.contains('on'));
+  const trimLanguage=main().querySelector('[data-action="ecot-trim-language-toggle"]');
+  trimLanguage.click(); await sleep(20);
+  ok('语言检定清理开关能保存', w.FruitHeartECoT.getTrimBeforeLanguageCheck()===false && !main().querySelector('[data-action="ecot-trim-language-toggle"]').classList.contains('on'));
   // 折叠能点开
   const d=main().querySelector('.fh-doc'); d.querySelector('summary').click(); await sleep(20);
   ok('折叠说明点得开', d.open || d.hasAttribute('open'));

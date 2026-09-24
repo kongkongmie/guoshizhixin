@@ -39,6 +39,7 @@
 
         if (typeof config.modelLink === 'boolean') modelLinkEnabled = config.modelLink;
         else { modelLinkEnabled = readFlag(modelLinkKey, true); if (localHas(modelLinkKey)) migrate.modelLink = modelLinkEnabled; }
+        dsThinkingOff = typeof config.dsThinkingOff === 'boolean' ? config.dsThinkingOff : readFlag(dsThinkingKey, true);
 
         const panel = config.panelDefaults || {};
         const take = (key, apply) => { if (!localHas(PANEL_KEYS[key]) && PANEL_VALID[key](panel[key])) apply(panel[key]); };
@@ -69,6 +70,7 @@
     function saveNsfwAutoEnabled() { return savePresetSetting(config => { config.nsfwAuto = { ...(config.nsfwAuto || {}), enabled: nsfwAutoEnabled }; }); }
     function saveWorldbookMode() { return savePresetSetting(config => { config.nsfwAuto = { ...(config.nsfwAuto || {}), worldbook: wbMode() }; }); }
     function saveModelLink() { return savePresetSetting(config => { config.modelLink = modelLinkEnabled; }); }
+    function saveDsThinking() { return savePresetSetting(config => { config.dsThinkingOff = dsThinkingOff; }); }
     // 面板外观：本机记一份（你自己的），预设里也记一份（导出后别人的开局默认）
     function savePanelSetting(key, value) {
         try { hostWindow.localStorage.setItem(PANEL_KEYS[key], String(value)); } catch { /* 无痕模式 */ }

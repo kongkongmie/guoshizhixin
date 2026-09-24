@@ -68,7 +68,8 @@
     }
     function modelTags(name) {
         return [...String(name || '').matchAll(/#\s*([^#]+?)(?=#|$)/g)]
-            .map(match => match[1].trim().replace(/\s+/g, ' ').toUpperCase()).filter(Boolean);
+            // 标签后面可能跟 @署名（「#DS @NUE」「#GLM@YUKI」），署名不算标签的一部分
+            .map(match => match[1].replace(/@.*$/, '').trim().replace(/\s+/g, ' ').toUpperCase()).filter(Boolean);
     }
     function allModelTags(preset = activePreset()) {
         return [...new Set(activePrompts(preset).flatMap(prompt => modelTags(prompt.name)))].sort((a, b) => a.localeCompare(b));
@@ -141,6 +142,7 @@
         { tag: 'GEMINI PRO', label: 'Gemini Pro' },
         { tag: 'CLAUDE', label: 'Claude' },
         { tag: 'DS', label: 'DeepSeek' },
+        { tag: 'GLM', label: 'GLM' },
     ];
     function currentModel(config, models) {
         return models.find(item => item.tag === modelGroup(config.activeTag)) || null;
