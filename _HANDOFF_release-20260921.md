@@ -203,14 +203,12 @@ git push
 - `tests/panel-harness.cjs` 里预置 `__FRUIT_HEART_LOADER__ = { state: 'done' }`，免得本地版每个测试等 1.5 秒。
 - jsdom 11 个场景（离线/同版本/Git 旧/Git 新 × 两种启动顺序，仅加载器离线，仅本地版，本地版重载）全部只有 1 个面板、结果符合预期；原有测试通过。
 
-## 20260925.1 发布 · 已构建、未推送
-> 2026-09-27 · 阿青
+## 20260925.1 发布 · 已推送
+> 更新于 2026-09-27 · 状态：完成
 
 - 正式构建 `releases/20260925.1/fruit-heart.js`，sha256 `1f81964b9a0d24c0e35e901c75415f40581e68eadaba3ff8c19b0a230b9920b7`；`release.json`、根目录 `loader.js`（LOADER_VERSION 20260925.1）、`install/…Git加载修复.json` 已重新生成并写回本目录。
 - 测试：`node --test tests/*.test.mjs` 22/22；jsdom 五套（nsfw-auto / settings-layout / settings-page / entry-sweep / preset-settings）全部通过；ecot-options 通过；`npx eslint dev/fruit-heart.js` 0 报错。
-- **推送没做成**：阿青所在环境对 `kongkongmie/guoshizhixin` 没有推送凭据（git 代理 403：仓库不在本次会话授权列表），咩咩电脑上的命令行也起不来。提交已在云端做好（基于 origin/main `e909b83`），补丁放在本目录 `20260925.1.patch`。
-- 推送方法（任选一）：
-  1. 在本目录直接：`git add -A && git commit -m "20260925.1：修复模型标签记忆误写、NSFW 小红点；本地版与 Git 版可同时开启" && git push`（工作区内容与云端提交一致，dev/ 在 gitignore 里）。
-  2. 把仓库加进会话的授权源后让阿青推。
-- 推送后确认 `https://raw.githubusercontent.com/kongkongmie/guoshizhixin/main/release.json` 的 version 是 20260925.1。
+- 已删除仅用于转交的 `20260925.1.patch`，发布提交为 `1c61ca6`，已推送到 `origin/main`。
+- 推送前复核：正式产物 SHA-256 与 `release.json` 一致；22/22 基础测试、ECoT 测试和五套 jsdom 预设回归全部通过；eslint 0 报错。
+- 远端最终以 `origin/main`、GitHub `release.json` 与正式产物 SHA 三项一致为准。
 - 预设：已写入 `【MoM】果实V6.31丨果实之心@KKM丨20260927`（具名文件 + settings.json 运行态），Git 槽换新加载器（20260925.1）并开启，本地版槽换 20260925.1 本地构建并改名「20260925丨果实之心丨本地版」，两个都开；ECoT 槽未动。原文件备份为 `….json.20260927-换脚本前.bak`。推送前 GitHub 上仍是 20260924.1：新加载器发现本地版更新会让位，面板照常由本地版运行；推送后自动切到 Git 版。
