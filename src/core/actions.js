@@ -57,6 +57,8 @@
         if (!before) throw new Error('没有找到该条目');
         if (!quiet && coreWarning(before) && !hostWindow.confirm(`“${stripSource(before.name)}”是核心或特殊条目，确定要${enabled ? '开启' : '关闭'}吗？`)) return false;
         const family = enabled ? exclusiveFamily(before, readConfig(preset)) : '';
+        const master = nsfwMaster(preset);
+        const followNsfw = Boolean(master) && promptId(master) === id;   // 动的是 NSFW 总开关：带「随NSFW」的条目一起动
         await updateBoth(target => {
             const config = readConfig(target);
             captureManualChanges(target, config);
@@ -70,11 +72,14 @@
                 if (link) next = enabled && id === link.when;
                 prompt.enabled = Boolean(next);
             }
+            if (followNsfw) holdNsfwFollowers(config, target.prompts || [], enabled);
             captureManualChanges(target, config);
             rememberAppliedStates(target, config);
             writeConfig(target, config);
             return target;
         });
+        // 动的是 NSFW 总开关：入口小红点跟着变 —— 常开/关闭两档、条目页开关都走这里，不只是自动判断
+        if (followNsfw) paintNsfwIndicator(enabled);
         if (!silent) toast('success', `${stripSource(before.name)}：${enabled ? '已开启' : '已关闭'}`);
         return true;
     }

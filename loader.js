@@ -532,7 +532,16 @@
     const BASE = 'https://raw.githubusercontent.com/kongkongmie/guoshizhixin/main/';
     const CACHE = 'fruit-heart-released-script-v1';
     const SEEN = 'fruit-heart-release-seen-v1';
-    const LOADER_VERSION = "20260924.1";
+    const LOADER_VERSION = "20260925.1";
+    let host = window;
+    try { while (host.parent !== host) host = host.parent; } catch {}
+    // 告诉同时开着的本地版：Git 这边正在加载，先别启动；加载失败时本地版会顶上
+    host.__FRUIT_HEART_LOADER__ = { state: 'loading' };
+    const setState = state => { host.__FRUIT_HEART_LOADER__ = { state }; };
+    function compareVersion(a, b) {
+        const [ad, an] = String(a || '0.0').split('.').map(Number), [bd, bn] = String(b || '0.0').split('.').map(Number);
+        return (ad || 0) - (bd || 0) || (an || 0) - (bn || 0);
+    }
     async function download() {
         stage = '连接 GitHub 发布信息';
         const response = await fetch(BASE + 'release.json', { cache: 'no-store', signal: AbortSignal.timeout(15000) });
@@ -570,6 +579,11 @@
         }
     }
     async function run(entry) {
+        const running = host.__FRUIT_HEART_MAIN__;
+        if (running?.local && running.version && compareVersion(running.version, entry.version) >= 0) {
+            console.info(`[果实之心] 已有 v${running.version}${running.local ? '（本地版）' : ''} 在运行，Git 版 v${entry.version} 不再启动`);
+            return;
+        }
         stage = '执行面板脚本';
         const url = URL.createObjectURL(new Blob([entry.code], { type: 'text/javascript' }));
         try { await import(url); }
@@ -600,10 +614,14 @@
                 await run(cached);
             }
         }
+        setState('done');
     } catch (error) {
-        console.error('[果实之心] 脚本加载失败', error);
-        let host = window;
-        try { while (host.parent !== host) host = host.parent; } catch {}
-        host.toastr?.error(`果实之心：${stage}失败。${error.message || String(error)}。可先关闭 Git 版，手动开启本地版。`);
+        setState('failed');
+        // 本地版同时开着的话，它会在这之后顶上 —— 那就不弹报错，只在控制台留一条
+        setTimeout(() => {
+            if (host.__FRUIT_HEART_MAIN__) return console.warn(`[果实之心] Git 版${stage}失败，已由本地版接管`, error);
+            console.error('[果实之心] 脚本加载失败', error);
+            host.toastr?.error(`果实之心：${stage}失败。${error.message || String(error)}。可以同时开启本地版作为离线备用。`);
+        }, 3000);
     }
 })();

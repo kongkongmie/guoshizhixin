@@ -1,7 +1,8 @@
-    hostWindow.__FRUIT_HEART_MAIN__ = { open, destroy };
+    hostWindow.__FRUIT_HEART_MAIN__ = { open, destroy, version: SCRIPT_VERSION, local: LOCAL_BUILD };
     applyPresetSettings();      // 先读这份预设里存的设置（NSFW 自动、世界书、外观默认…），再装入口
     bindEntry();
     bindPresetChangeEvents();
+    bindNsfwFollow();
     void wbClearLegacyLedger().catch(error => console.warn('[果实之心] 清理旧版世界书账本失败', error));
     try { ecotEndTags(); } catch {}
     window.addEventListener('pagehide', destroyOnPageHide, { once: true });

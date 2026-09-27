@@ -271,6 +271,32 @@
         const init = initPrompt(preset);
         return (preset.prompts || []).find(p => p !== init && /\{\{setglobalvar::NSFW::/.test(p.content || '')) || null;
     }
+    // 条目名里带「随NSFW」的条目跟着 NSFW 总开关一起开关（给没法走变量的条目用，比如里面有 {{random}} 的）
+    const NSFW_FOLLOW = /随\s*NSFW/i;
+    // 总开关关掉时，把当时开着的「随NSFW」条目记下来；再打开时只恢复这些 —— 你自己关掉的不会被重新打开。
+    // 从没记录过（undefined）视为全部恢复，老用户第一次升级不会发现花样骰子莫名其妙关着。
+    function holdNsfwFollowers(config, prompts, masterOn) {
+        let changed = false;
+        if (!masterOn) {
+            const held = new Set(config.nsfwFollowHeld || []);
+            for (const prompt of prompts) {
+                if (!isNsfwFollower(prompt) || !prompt.enabled) continue;
+                held.add(promptId(prompt)); prompt.enabled = false; changed = true;
+            }
+            if (changed || !Array.isArray(config.nsfwFollowHeld)) config.nsfwFollowHeld = [...held];
+            return changed;
+        }
+        const held = Array.isArray(config.nsfwFollowHeld) ? new Set(config.nsfwFollowHeld) : null;
+        if (held && !held.size) return false;
+        for (const prompt of prompts) {
+            if (!isNsfwFollower(prompt) || prompt.enabled) continue;
+            if (held && !held.has(promptId(prompt))) continue;
+            prompt.enabled = true; changed = true;
+        }
+        config.nsfwFollowHeld = [];
+        return true;
+    }
+    function isNsfwFollower(prompt) { return Boolean(prompt) && promptId(prompt) !== CONFIG_ID && NSFW_FOLLOW.test(String(prompt.name || '')) && !isDivider(prompt); }
     function theatreMaster(preset = activePreset()) {
         const init = initPrompt(preset);
         return (preset.prompts || []).find(p => p !== init && promptId(p) !== CONFIG_ID && /\{\{setvar::snow::/.test(p.content || '')) || null;
@@ -374,15 +400,22 @@ __MODEL_LINK__
             }
         }
     }
+    // 某个模型第一次记这条的开关：只有当前正在用的模型才拿现状；别的模型下这条是被模型强制关掉的，
+    // 拿现状会把「关」错记成那个模型的偏好 —— 改用出厂状态。
+    function seedTagState(config, tag, id, enabled, selected) {
+        config.tagStates[tag] ||= {};
+        if (id in config.tagStates[tag]) return;
+        config.tagStates[tag][id] = tag === selected || !(id in config.initialStates) ? enabled : Boolean(config.initialStates[id]);
+    }
     function captureManualChanges(preset, config) {
         for (const prompt of activePrompts(preset)) {
             const id = promptId(prompt), enabled = Boolean(prompt.enabled), tags = modelTags(prompt.name);
-            for (const tag of tags) {
-                config.tagStates[tag] ||= {};
-                if (!(id in config.tagStates[tag])) config.tagStates[tag][id] = enabled;
-            }
-            if (config.lastAppliedStates[id] === enabled) continue;
             const selected = appliedTag(tags, config.activeTag);
+            for (const tag of tags) seedTagState(config, tag, id, enabled, selected);
+            if (config.lastAppliedStates[id] === enabled) continue;
+            // 选了模型、这条却不属于它：它现在的开关是模型强制的，不是用户对别的模型的偏好，不记。
+            // （以前这里会把「关」写进这条所有标签的记忆 —— 在 Claude 下切回 Gemini，Gemini 条目就全被记成关了）
+            if (config.activeTag && !selected) continue;
             for (const tag of selected ? [selected] : tags) config.tagStates[tag][id] = enabled;
         }
     }
@@ -411,8 +444,7 @@ __MODEL_LINK__
             for (const prompt of activePrompts(preset).filter(prompt => appliedTag(modelTags(prompt.name), tag))) {
                 const id = promptId(prompt);
                 const stateTag = appliedTag(modelTags(prompt.name), tag);
-                config.tagStates[stateTag] ||= {};
-                if (!(id in config.tagStates[stateTag])) config.tagStates[stateTag][id] = Boolean(prompt.enabled);
+                seedTagState(config, stateTag, id, Boolean(prompt.enabled), appliedTag(modelTags(prompt.name), config.activeTag));
             }
             for (const prompt of activePrompts(preset)) {
                 const promptTags = modelTags(prompt.name);

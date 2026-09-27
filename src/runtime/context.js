@@ -12,8 +12,28 @@
 
     try { if (hostWindow.localStorage.getItem('fruit-heart-disabled') === 'true') { hostWindow.localStorage.removeItem('fruit-heart-disabled'); return; } } catch {}
 
+    // ── 本地版和 Git 版可以同时开着：同一时间只跑一份 ──
+    // 规则：另一渠道（本地版 ↔ Git 版）已经有同版本或更新的一份在跑，就不启动；否则接管。
+    // 同一渠道的一律接管 —— 那是重新加载 / 重新粘贴，必须让新代码生效。
+    // 本地版先等 Git 加载器一会儿：Git 能加载（在线，或有离线缓存）就让它来；Git 失败（首次使用又没网）才由本地版顶上。
+    function compareVersion(a, b) {
+        const [ad, an] = String(a || '0.0').split('.').map(Number), [bd, bn] = String(b || '0.0').split('.').map(Number);
+        return (ad || 0) - (bd || 0) || (an || 0) - (bn || 0);
+    }
+    if (LOCAL_BUILD) {
+        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+        const loaderState = () => hostWindow.__FRUIT_HEART_LOADER__?.state;
+        for (let waited = 0; waited < 1500 && !loaderState(); waited += 100) await sleep(100);   // 两个脚本启动先后不定，给加载器一点时间露面
+        for (let waited = 0; waited < 40000 && loaderState() === 'loading'; waited += 200) await sleep(200);
+    }
     const old = hostWindow.__FRUIT_HEART_MAIN__;
+    if (old?.version && Boolean(old.local) !== LOCAL_BUILD && compareVersion(old.version, SCRIPT_VERSION) >= 0) {
+        console.info(`[果实之心] 已有 v${old.version}${old.local ? '（本地版）' : '（Git 版）'} 在运行，本份 v${SCRIPT_VERSION}${LOCAL_BUILD ? '（本地版）' : '（Git 版）'} 不再启动`);
+        return;
+    }
     if (old && typeof old.destroy === 'function') old.destroy();
+    // 立刻占位：另一份脚本（或加载器）马上就能看到这里已经有人在跑，不会同时起两份
+    hostWindow.__FRUIT_HEART_MAIN__ = { version: SCRIPT_VERSION, local: LOCAL_BUILD, open() {}, destroy() { try { destroy(); } catch (error) { console.warn('[果实之心] 启动中被接管', error); } } };
     const INSTANCE_ID = `fh${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
     const ENTRY_EVENT_NS = `.fruitHeartEntry_${INSTANCE_ID}`;
     const KEY_EVENT_NS = `.fruitHeartKeys_${INSTANCE_ID}`;

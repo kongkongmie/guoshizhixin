@@ -113,6 +113,8 @@ w.confirm = () => true;
 const consoleErrs=[]; const origErr=console.error; console.error=(...a)=>consoleErrs.push(a.map(String).join(' '));
 const consoleWarns=[]; const origWarn=console.warn; console.warn=(...a)=>consoleWarns.push(a.map(String).join(' '));
 
+// 本地版启动前会等 Git 加载器；测试里没有加载器，直接标成已结束，免得每个测试白等 1.5 秒
+w.__FRUIT_HEART_LOADER__ = { state: 'done' };
 w.eval(fs.readFileSync(target,'utf8'));
 module.exports = { w, live: () => live, chat, emit, toasts, makeLore, wbWrites: () => wbWrites,
   stats: () => ({calls, writes, nsfwFlips}), consoleErrs, consoleWarns,

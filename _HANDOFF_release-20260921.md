@@ -167,3 +167,50 @@ git push
 - `src/core/presets.js` 的 `MODELS` 加 `{ tag: 'GLM', label: 'GLM' }`（排在 DeepSeek 后）；`src/model-link.js` 的 `linkedModelTag` 认 `GLM|ZHIPU|BIGMODEL` → `GLM`（预设里没有 #GLM 条目时不切）。
 - 预设里目前只有 `🧠 思考约束|思考约束单选 #CLAUDE #DS #GLM` 一条带 GLM 标签。
 - model-link 测试补了 3 例；jsdom 用当前 settings.json 的预设验证模型选择里出现 GLM 并能点击切换。ECoT 模块没改，仍是 v20260923.3。
+
+## 20260924.1 追加 · 「随NSFW」跟随条目（为花样骰子）
+- 背景：`{{random}}` 塞进 `{{setvar::X::…}}` 不生效（咩咩实测，条目仍发 76 token = setvar 没被识别、残文漏出）；`{{roll:1d10}}` 她说能嵌。所以含 random 的 NSFW 条目改为**直接输出**，不走变量。
+- 为了让它仍受 NSFW 总开关管：条目名含 `随NSFW` 的条目跟着 `nsfwMaster` 开关。
+  - `setPrompt` 动的是总开关时，跟随条目同步（覆盖首页一键总控、NSFW 自动判断、条目页开关）。
+  - `syncNsfwFollowers()`（runtime/generation.js）在 MESSAGE_SENT / GENERATION_AFTER_COMMANDS 时对齐一次，覆盖「在酒馆条目列表里直接点总开关」。启动时 `bindNsfwFollow()`，与 NSFW 自动判断是否开启无关。
+- 预设侧：`🔞 花样骰子｜随NSFW·每轮随机` 放在 `📌 🥵NSFW输出` 之后，正文直接写三组 `{{random:…}}`；总开关里不再 getvar 它。
+- 验证：jsdom 下首页一键总控 off/on/off 跟随正确；直接改总开关后发送一次跟随对齐；设置页/布局/预设设置/model-link 测试通过。
+- **修正（同日）**：初版「随NSFW」每次发送都强制跟总开关对齐，导致 NSFW 开着时没法单独关花样骰子。现改为：总开关关 → 把开着的跟随条目关掉并记入 `config.nsfwFollowHeld`；总开关开 → 只恢复记下的那些；总开关开着时不碰跟随条目。`nsfwFollowHeld` 未定义（老用户）时：面板里把总开关打开会全部恢复一次，发送前的对齐不动它。逻辑在 `holdNsfwFollowers()`（presets.js），`setPrompt` 和 `syncNsfwFollowers` 共用。jsdom 下 10 步场景全部符合预期。
+
+## 20260925.1 · 模型标签记忆被误写（Gemini 条目默认不开）
+> 2026-09-25 · 阿青 · 本地版待验收，未推送
+
+- 现象：V6.3 选 Gemini Flash，出厂开启的 #GEMINI 条目（角色平衡/强势角色压制/病态角色压制/台词约束）是关的；`tagStates.GEMINI` 里它们是 false，`initialTagStates.GEMINI` 里是 true。
+- 根因（`captureManualChanges`）：在别的模型（Claude/DS）下，只要某条 #GEMINI 条目的 `lastAppliedStates` 过期或缺失（面板外改过开关、新加条目、复制出新预设），切模型前的捕获会把它「被模型强制关掉」的状态写进它**所有**标签的记忆，GEMINI 记忆就被记成关。首次播种（seed）也拿当前状态，同样问题。jsdom 复现：stale lastApplied + 在 Claude 下切回 Gemini Flash → 四条全被记关。
+- 修法：新增 `seedTagState()`——首次记忆只有当前模型用现状，其他模型用 `initialStates`；手动改动捕获时，选了模型且条目不属于它就跳过。`applyTag` 的播种也改用 `seedTagState`。
+- 已被写坏的记忆不会自动恢复（分不清是不是用户自己关的）：让咩咩在 Gemini Flash 下手动打开一次，或用「重置全部开关」。
+- 这版基于磁盘上含「随NSFW」修正版的源码构建；Tavern 里当时跑的是 Git 20260921.2，本地版 b003（20260924.1，无随NSFW）是关的。
+
+## 20260925.1 追加 · NSFW 入口小红点只在「自动」档亮
+- 根因：`paintNsfwIndicator` 只在自动判断（nsfw-auto.js）和首页一键总控（`toggleMaster`）里调用；「常开/关闭」档走 `setPrompt`，条目页开关也走 `setPrompt`，都不刷新小红点。
+- 修法：`setPrompt` 里动的是 NSFW 总开关（`followNsfw`）时 `paintNsfwIndicator(enabled)`；`syncNsfwFollowers`（发送时）先对齐一次小红点，覆盖在酒馆条目列表里直接点总开关的情况。
+- jsdom：常开/关闭来回切 4 次，快捷栏入口和悬浮猫咪的 `fh-nsfw-lit` 都跟随。版本号仍为 20260925.1（未发布）。
+
+## 20260925.1 追加 · 本地版与 Git 版可同时开启
+- 需求：两份都开；Git 能加载就用 Git（首次用户自动拿最新），首次又没网时自动用本地版。
+- 协议（都在 host window 上）：
+  - 加载器一启动就写 `__FRUIT_HEART_LOADER__ = { state: 'loading' }`，结束写 `done` / `failed`。
+  - 主脚本 `context.js` 启动闸门：本地版先等加载器露面（≤1.5s），再等它不是 `loading`（≤40s）。然后看 `__FRUIT_HEART_MAIN__`：**另一渠道**（local 标记不同）已有同版本或更新的在跑 → 不启动；否则 destroy 旧的并立刻占位 `{ version, local }`。**同渠道一律接管**（重新粘贴同版本也要生效——第一版写成「同版本不启动」，preset-settings 测试里的重载场景挂了，才改成按渠道判断）。
+  - 加载器 `run()` 前：已有本地版且版本 ≥ 要跑的 → 不跑（兼容没有闸门的旧发布代码）。
+  - 加载失败：3 秒后若已有实例（本地版接管）只打控制台，不弹 toastr。
+- 过渡期：GitHub 上的 20260924.1 没有闸门，但新加载器会替它判断；旧加载器 + 新本地版时，旧 Git 代码仍会无条件接管（所以加载器也要换）。
+- 加载器产物 `dev/fruit-heart-loader.js`：按 build.mjs 同样的替换手工生成，LOADER_VERSION 取当前 release.json（20260924.1），没有跑正式构建、没有动 releases/ 和根目录 loader.js。**下次正式发布时 `node build.mjs` 会从 `src/loader.template.js` 重新生成根目录 loader.js，别忘了让用户换加载器。**
+- `tests/panel-harness.cjs` 里预置 `__FRUIT_HEART_LOADER__ = { state: 'done' }`，免得本地版每个测试等 1.5 秒。
+- jsdom 11 个场景（离线/同版本/Git 旧/Git 新 × 两种启动顺序，仅加载器离线，仅本地版，本地版重载）全部只有 1 个面板、结果符合预期；原有测试通过。
+
+## 20260925.1 发布 · 已构建、未推送
+> 2026-09-27 · 阿青
+
+- 正式构建 `releases/20260925.1/fruit-heart.js`，sha256 `1f81964b9a0d24c0e35e901c75415f40581e68eadaba3ff8c19b0a230b9920b7`；`release.json`、根目录 `loader.js`（LOADER_VERSION 20260925.1）、`install/…Git加载修复.json` 已重新生成并写回本目录。
+- 测试：`node --test tests/*.test.mjs` 22/22；jsdom 五套（nsfw-auto / settings-layout / settings-page / entry-sweep / preset-settings）全部通过；ecot-options 通过；`npx eslint dev/fruit-heart.js` 0 报错。
+- **推送没做成**：阿青所在环境对 `kongkongmie/guoshizhixin` 没有推送凭据（git 代理 403：仓库不在本次会话授权列表），咩咩电脑上的命令行也起不来。提交已在云端做好（基于 origin/main `e909b83`），补丁放在本目录 `20260925.1.patch`。
+- 推送方法（任选一）：
+  1. 在本目录直接：`git add -A && git commit -m "20260925.1：修复模型标签记忆误写、NSFW 小红点；本地版与 Git 版可同时开启" && git push`（工作区内容与云端提交一致，dev/ 在 gitignore 里）。
+  2. 把仓库加进会话的授权源后让阿青推。
+- 推送后确认 `https://raw.githubusercontent.com/kongkongmie/guoshizhixin/main/release.json` 的 version 是 20260925.1。
+- 预设：已写入 `【MoM】果实V6.31丨果实之心@KKM丨20260927`（具名文件 + settings.json 运行态），Git 槽换新加载器（20260925.1）并开启，本地版槽换 20260925.1 本地构建并改名「20260925丨果实之心丨本地版」，两个都开；ECoT 槽未动。原文件备份为 `….json.20260927-换脚本前.bak`。推送前 GitHub 上仍是 20260924.1：新加载器发现本地版更新会让位，面板照常由本地版运行；推送后自动切到 Git 版。
