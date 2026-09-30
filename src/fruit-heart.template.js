@@ -4,6 +4,7 @@ __HASH__
 
 /* @include src/config.js */
 /* @include src/core/quick-replies.js */
+/* @include src/core/novel-export.js */
 /* @include src/runtime/context.js */
 /* @include src/core/presets.js */
 /* @include src/ui/primitives.js */
@@ -14,6 +15,7 @@ __HASH__
 /* @include src/ui/quick-replies.js */
 /* @include src/integrations/ecot.js */
 /* @include src/ui/entries.js */
+/* @include src/ui/export.js */
 __UPDATES__
 
 /* @include src/ui/settings.js */

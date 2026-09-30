@@ -6,6 +6,7 @@
         else if (view === 'qr') renderQr();
         else if (view === 'entries') renderEntries();
         else if (view === 'updates') renderUpdates();
+        else if (view === 'export') renderExport();
         else if (view === 'settings') renderSettings();
         if (changedView) main.scrollTop(0);
         renderedFingerprint = presetFingerprint();

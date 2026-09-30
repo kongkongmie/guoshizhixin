@@ -13,13 +13,16 @@
     // 不用原生 <select> 了：它的弹层是系统画的，样式一点改不了（她说「下拉框还是很丑」，
     // 那个深色系统菜单确实丑），而且排版极贵 —— 六个下拉五十多个 option，光布局 260ms。
     // 换成自己的选择面板：手机上从底部升起，宽屏上居中，样式跟着皮肤走。
-    function selectFrom(items, group, prefix = '', cls = '') {
+    // compact：非正文卡里用。选中了就只写条目名（「正文前状态栏：Top-题记」太长，手机上连 ▾ 都被切掉）；
+    // 全关时才写组名，不然看不出这颗是哪一组。
+    function selectFrom(items, group, prefix = '', cls = '', compact = false) {
         if (!items.length) return '';
         const active = items.filter(prompt => prompt.enabled);
-        const label = active.length > 1 ? `多项已开（${active.length}）`
-            : active.length === 1 ? prefix + plainName(active[0].name) : prefix + '全部关闭';
+        const label = active.length > 1 ? (compact ? `${group}：${active.length} 项` : `多项已开（${active.length}）`)
+            : active.length === 1 ? (compact ? '' : prefix) + plainName(active[0].name)
+            : compact ? `${group}：关` : prefix + '全部关闭';
         return `<button class="fh-sel ${active.length === 1 ? 'on' : ''} ${cls}" data-pick-group="${h(group)}"`
-            + ` data-prefix="${h(prefix)}" aria-label="${h(group)}">${h(label)}<i>▾</i></button>`;
+            + ` data-prefix="${h(prefix)}" aria-label="${h(group)}" title="${h(group)}：${h(label)}"><span class="fh-sel-t">${h(label)}</span><i>▾</i></button>`;
     }
     let sheetOpen = false;
     function closePicker() { root.find('.fh-sheet').remove(); sheetOpen = false; }
@@ -96,7 +99,9 @@
             if (!family) { out.push(chipOf(prompt)); continue; }
             if (done.has(family)) continue;
             done.add(family);
-            out.push(selectFrom(all.filter(p => exclusiveFamily(p, config) === family), family, family + '：'));
+            const members = all.filter(p => exclusiveFamily(p, config) === family);
+            // 组里只剩一条（比如序言删到只剩一个）就没什么好选的，当普通开关
+            out.push(members.length > 1 ? selectFrom(members, family, family + '：', '', true) : chipOf(prompt));
         }
         return out.join('');
     }
@@ -129,6 +134,9 @@
         const part = {};
         part.qr = `<div class="fh-grp" style="${cardVars('qr')}"><button class="fh-qr-entry" data-nav="qr"><span class="fh-qr-ico">⌘</span>
           <span class="fh-qr-copy"><strong>快捷指令 QR</strong><small>可自定义编辑，兼容酒馆原生 QR</small></span>
+          <span class="fh-qr-go">›</span></button></div>`;
+        part.export = `<div class="fh-grp" style="${cardVars('export')}"><button class="fh-qr-entry" data-nav="export"><span class="fh-qr-ico fh-exp-ico">¶</span>
+          <span class="fh-qr-copy"><strong>导出为 TXT 小说<em class="fh-sign">@hy</em></strong><small>选楼层、只留正文、自动分章</small></span>
           <span class="fh-qr-go">›</span></button></div>`;
         part.common = `<div class="fh-lab">常用</div>
         <div class="fh-grp" style="${cardVars('common')}"><div class="fh-pad">

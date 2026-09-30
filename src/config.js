@@ -51,23 +51,29 @@
     // 每张卡一条胶带色；别的皮肤用不到这个变量，不影响
     // 首页栏目：顺序和默认展开都存在预设里，跟着方案走
     const HOME_CARDS = [
-        ['qr', '快捷指令 QR', false], ['common', '常用', false], ['turn', '常规设置', false],
+        ['qr', '快捷指令 QR', false], ['export', '导出小说', false], ['common', '常用', false], ['turn', '常规设置', false],
         ['theatre', '小剧场', true], ['nsfw', 'NSFW', true], ['body', '正文', true],
         ['rest', '非正文', true], ['farmer', '果农人格', true],
     ];
     function homeOrder(config) {
         const known = HOME_CARDS.map(item => item[0]);
         const want = (config.homeOrder || []).filter(id => known.includes(id));
-        return [...want, ...known.filter(id => !want.includes(id))];
+        // 新加的栏目插在它默认的前一个邻居后面，不甩到最底下 —— 排过序的老用户也能在原位置看到
+        for (const [index, id] of known.entries()) {
+            if (want.includes(id)) continue;
+            const prev = known.slice(0, index).reverse().find(x => want.includes(x));
+            want.splice(prev ? want.indexOf(prev) + 1 : 0, 0, id);
+        }
+        return want;
     }
     function homeFolded(config, id) {
         if (id in folded) return folded[id];
         return (config.homeOpen || {})[id] === false;
     }
     const folded = {};          // 本次会话里临时折起来的，不写回预设
-    const TAPE = { qr:'#e8b9a2', common:'#e0cfa8', turn:'#d5cbb0', theatre:'#e6b8c6',
+    const TAPE = { qr:'#e8b9a2', export:'#c9d4b0', common:'#e0cfa8', turn:'#d5cbb0', theatre:'#e6b8c6',
         nsfw:'#b6c4de', body:'#d9cdb4', rest:'#b8d6c4', farmer:'#cdc0d8' };
-    const DOT = { qr:'#b8735a', common:'#9a8360', turn:'#8a7350', theatre:'#a8566b',
+    const DOT = { qr:'#b8735a', export:'#6f7f4a', common:'#9a8360', turn:'#8a7350', theatre:'#a8566b',
         nsfw:'#5f6f96', body:'#8a7350', rest:'#4f7a63', farmer:'#7d6a86' };
     function cardVars(id) { return `--tape:${TAPE[id]};--dot:${DOT[id]}`; }
     const BODY_OUT = /角色内心|灵动正文|果农吐槽|正文防转折|防转折|文末钩子|正文与字数检测|字数检测|性爱柔和自检|柔和自检/;

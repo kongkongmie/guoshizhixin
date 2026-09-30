@@ -225,7 +225,9 @@
    要一眼看出「这是能点开的」—— 所以给描边和一个实心 ▾，别做成纯文字。 */
 #fruit-heart-v6 .fh-sel { display:inline-flex; align-items:center; gap:5px; background:var(--card2);
   border:1px solid var(--line); border-radius:7px; padding:4.5px 8px 4.5px 10px; font-size:12.5px; color:var(--ink);
-  max-width:12em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; line-height:1.35 }
+  max-width:12em; overflow:hidden; white-space:nowrap; line-height:1.35 }
+/* 省略号要打在里面这层 span 上：flex 容器里的裸文字吃不到 text-overflow，超长时会把 ▾ 一起切掉 */
+#fruit-heart-v6 .fh-sel-t { min-width:0; overflow:hidden; text-overflow:ellipsis }
 #fruit-heart-v6 .fh-sel i { font-style:normal; font-size:8px; color:var(--ink3); flex:none; transform:translateY(1px) }
 #fruit-heart-v6 .fh-sel.on { color:var(--acc); border-color:var(--acc-line); background:var(--acc-soft); font-weight:600 }
 #fruit-heart-v6 .fh-sel.on i { color:var(--acc) }

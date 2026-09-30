@@ -532,7 +532,7 @@
     const BASE = 'https://raw.githubusercontent.com/kongkongmie/guoshizhixin/main/';
     const CACHE = 'fruit-heart-released-script-v1';
     const SEEN = 'fruit-heart-release-seen-v1';
-    const LOADER_VERSION = "20260925.1";
+    const LOADER_VERSION = "20260930.1";
     let host = window;
     try { while (host.parent !== host) host = host.parent; } catch {}
     // 告诉同时开着的本地版：Git 这边正在加载，先别启动；加载失败时本地版会顶上

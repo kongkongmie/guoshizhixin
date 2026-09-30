@@ -9,6 +9,8 @@
 | 查看加载顺序 | `src/fruit-heart.template.js` | 29 行组装入口；保留唯一私有 IIFE 与样式注入 |
 | 常量、默认 QR 数据、图标 | `src/config.js` | 产品常量与默认内容，不绑定事件 |
 | 助手与父窗口环境、实例状态 | `src/runtime/context.js` | 定位 hostWindow/doc/jQuery，销毁旧实例，创建命名空间和监听清理登记 |
+| 导出小说的文本处理 | `src/core/novel-export.js` | 纯函数：拆标签块、分章、清理、替换规则、统计；不碰 DOM 和预设，测试直接取出来跑 |
+| 导出小说页 | `src/ui/export.js` | 页面、选项（存本机 localStorage）、下载与复制；从首页入口进入，不在底部导航 |
 | 预设读写、分区、模型分组和总开关 | `src/core/presets.js` | `activePreset`、`updateBoth`、配置读写、`nsfwMaster` 等；保留模型/NSFW 功能的原始初始化位置 |
 | 跟着预设走的设置 | `src/core/preset-settings.js` | 自动化开关存入 🔧 控制配置；面板外观存为开局默认，本机选过的优先；启动与切换预设时读取，老版浏览器存储首次加载时补写进预设 |
 | 用户发起的预设和方案操作 | `src/core/actions.js` | `setPrompt`、`toggleMaster`、字数、方案等操作；不生成页面 HTML |
