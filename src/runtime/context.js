@@ -29,6 +29,15 @@
     const old = hostWindow.__FRUIT_HEART_MAIN__;
     if (old?.version && Boolean(old.local) !== LOCAL_BUILD && compareVersion(old.version, SCRIPT_VERSION) >= 0) {
         console.info(`[果实之心] 已有 v${old.version}${old.local ? '（本地版）' : '（Git 版）'} 在运行，本份 v${SCRIPT_VERSION}${LOCAL_BUILD ? '（本地版）' : '（Git 版）'} 不再启动`);
+        // 让位了，但挂在这一份脚本上的快捷栏按钮还在。酒馆助手的按钮点击会 stopPropagation，
+        // 事件名又绑着脚本 id —— 只有这一份收得到。2026-10-03：按钮挂在本地版、Git 版在跑，点了没反应。
+        // 收到就转给真正在跑的那一份。
+        const getEvent = resolveFunction('getButtonEvent'), on = resolveFunction('eventOn');
+        if (getEvent && on) {
+            for (const label of BUTTON_NAMES) {
+                try { const name = getEvent(label); if (name) on(name, () => hostWindow.__FRUIT_HEART_MAIN__?.open?.()); } catch {}
+            }
+        }
         return;
     }
     if (old && typeof old.destroy === 'function') old.destroy();

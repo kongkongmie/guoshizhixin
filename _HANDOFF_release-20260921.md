@@ -265,3 +265,28 @@ git push
 - `loader.js` 只变了 `LOADER_VERSION`，旧加载器（20260925.1）照常能拉到新版，**不需要换加载器**。
 - 测试（V6.40 预设）：32/32；导出页 + 5 套 jsdom 对正式产物全部通过；ECoT 通过；eslint 0。
 - **她本地仓库还停在 `1741fb6`，工作区里有同样内容的未提交改动**：在本机执行 `git fetch` 后 `git reset --hard origin/main`（工作区内容与远端一致，不会丢东西；`dev/` 在 gitignore 里不受影响）。
+
+## 20261003.1 · 快捷栏没反应 + 新回复不渲染
+> 2026-10-03 · 阿青 · 状态：本地版待咩咩验收，**未推送**
+
+### 快捷栏「🍎 果实之心」点了没反应（主脚本）
+- 现场：V6.41 里按钮配在**本地版**脚本（b003）上；Git 版（20260930.1）和本地版（20260930.1）同版本都开着 → 按 20260925.1 的闸门规则 Git 版运行、本地版让位直接 return。
+- 根因：酒馆助手的脚本按钮是 `@click.stop.prevent="eventSource.emit(button_id)"`，事件名 = 脚本 id + 按钮名（`getButtonId`）。stopPropagation 让我们挂在 document 上的委托点击收不到；事件又只有 b003 那份脚本能听 —— 它已经 return 了。
+- 修法：`src/runtime/context.js` 让位分支里，先用 `getButtonEvent` 为两种按钮名注册监听，转调 `hostWindow.__FRUIT_HEART_MAIN__.open()`（每次现取，正在跑的那份重载了也能找到）。
+- 没改加载器：只有按钮挂在 Git 加载器槽上、而本地版更新时才会遇到同样的问题，目前没人这么配。
+- 测试 `tests/button-forward.test.cjs`（旧构建失败、新构建通过）。
+
+### 新回复美化停在代码上（ECoT 模块 → v20261003.1）
+- 根因（对着酒馆助手源码 `src/store/iframe_runtimes/message.ts` 确认）：助手记着哪一楼已经渲染过，只在 `CHARACTER_MESSAGE_RENDERED` / `MESSAGE_UPDATED` / `MESSAGE_SWIPED` 时重新渲染那一楼。ECoT 在 RENDERED 之后（原生解析晚到的推理、清 [语言检定] 之前的内容、GENERATION_ENDED+300ms 兜底）调 `updateMessageBlock` 重画整条消息，代码块变回裸 `<pre>`，但没人广播 → 助手以为还渲染着。
+- 修法：`refreshMessage` 在 `updateMessageBlock` 之后补 `emit(MESSAGE_UPDATED, id)`，和酒馆自己编辑消息的顺序一样。ECoT 也听 MESSAGE_UPDATED，第二次进来 processMessage 无事可做，不绕圈。
+- ECoT 不在仓库里：源在 `H:\果实预设开发\fruit-heart-ecot.js`，同步到 `dev/fruit-heart-ecot-local.js` 和 `dev/果实之心-ECoT-v20261003.1.js`。测试 `tests/ecot-render.test.cjs <ECoT路径>`（按酒馆助手的注册顺序模拟：旧版失败、新版通过）。
+
+### 美化正则 9 / 10 / 17 日夜版
+在 `H:\果实预设开发\20261003丨美化正则丨日夜版\`，单独有交接。
+
+### 验证（V6.41 预设）
+32/32；button-forward、export-page + 5 套 jsdom；ecot-render、ecot-options；eslint 0。
+
+### 下一步
+- [ ] 咩咩：b003 贴 `dev/果实之心-v20261003.1-本地版.js`；b001 贴 `dev/果实之心-ECoT-v20261003.1.js`；导入三条正则、删掉旧的 [9]透明版 / [10]夜间版 / [17]。
+- [ ] 她确认后再正式构建 20261003.1 并推送（推送后 Git 版和本地版又同版本 → Git 版跑、本地版让位并转发按钮，正好覆盖这次的场景）。
